@@ -45,7 +45,7 @@ class PluginManager:
         
         # Discover entry point plugins
         for plugin_type in self.PLUGIN_TYPES:
-            entry_point_group = f"etl.{plugin_type}s"
+            entry_point_group = f"Santiq.{plugin_type}s"
             for entry_point in importlib.metadata.entry_points().select(group=entry_point_group):
                 try:
                     plugin_info = self._get_plugin_info_from_entry_point(entry_point, plugin_type)
