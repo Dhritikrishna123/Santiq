@@ -1,4 +1,4 @@
-# santiq
+# Santiq
 
 A lightweight, modular, plugin-first ETL platform designed for individuals, small businesses, and scalable up to enterprise workloads.
 
