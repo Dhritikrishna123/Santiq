@@ -42,16 +42,16 @@ dev = [
 [project.scripts]
 santiq = "santiq.cli.main:app"
 
-[project.entry-points."Santiq.extractors"]
+[project.entry-points."santiq.extractors"]
 csv_extractor = "santiq.plugins.extractors.csv_extractor:CSVExtractor"
 
-[project.entry-points."Santiq.profilers"]
+[project.entry-points."santiq.profilers"]
 basic_profiler = "santiq.plugins.profilers.basic_profiler:BasicProfiler"
 
-[project.entry-points."Santiq.transformers"]
+[project.entry-points."santiq.transformers"]
 basic_cleaner = "santiq.plugins.transformers.basic_cleaner:BasicCleaner"
 
-[project.entry-points."Santiq.loaders"]
+[project.entry-points."santiq.loaders"]
 csv_loader = "santiq.plugins.loaders.csv_loader:CSVLoader"
 
 [tool.setuptools.packages.find]
