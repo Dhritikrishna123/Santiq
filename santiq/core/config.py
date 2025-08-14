@@ -140,4 +140,4 @@ class ConfigManager:
         else:  # Unix-like
             config_dir = os.getenv('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
         
-        return os.path.join(config_dir, 'etl-core', 'preferences.yml')
+        return os.path.join(config_dir, 'SANTIQ', 'preferences.yml')
