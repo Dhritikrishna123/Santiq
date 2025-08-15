@@ -13,7 +13,7 @@ class PluginConfig(BaseModel):
     """Configuration for a single plugin"""
     plugin: str
     params: Dict[str, Any] = Field(default_factory=dict)
-    on_error: str = Field(default="stop", regex="^(stop|continue|retry)$")
+    on_error: str = Field(default="stop", pattern="^(stop|continue|retry)$")
     enable: bool = True
     
 class PipelineConfig(BaseModel):

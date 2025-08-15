@@ -1,0 +1,290 @@
+# ============================
+# Python Bytecode / Cache
+# ============================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# ============================
+# C Extensions
+# ============================
+*.so
+*.pyd
+*.dll
+
+# ============================
+# Distribution / Packaging
+# ============================
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+pip-wheel-metadata/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ============================
+# PyInstaller
+# ============================
+*.manifest
+*.spec
+
+# ============================
+# Installer Logs
+# ============================
+pip-log.txt
+pip-delete-this-directory.txt
+
+# ============================
+# Unit Test / Coverage Reports
+# ============================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# ============================
+# Translations
+# ============================
+*.mo
+*.pot
+
+# ============================
+# Django Stuff
+# ============================
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# ============================
+# Flask Stuff
+# ============================
+instance/
+.webassets-cache
+
+# ============================
+# Scrapy Stuff
+# ============================
+.scrapy
+
+# ============================
+# Sphinx Documentation
+# ============================
+docs/_build/
+doc/_build/
+
+# ============================
+# PyBuilder
+# ============================
+target/
+
+# ============================
+# IPython / Jupyter
+# ============================
+.ipynb_checkpoints
+profile_default/
+ipython_config.py
+*.nbconvert.ipynb
+
+# ============================
+# pyenv
+# ============================
+.python-version
+
+# ============================
+# pipenv
+# ============================
+Pipfile.lock
+
+# ============================
+# poetry
+# ============================
+poetry.lock
+
+# ============================
+# pdm
+# ============================
+pdm.lock
+__pypackages__/
+
+# ============================
+# pyflow
+# ============================
+pyflow.lock
+
+# ============================
+# mypy
+# ============================
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ============================
+# Pyre type checker
+# ============================
+.pyre/
+
+# ============================
+# pytype
+# ============================
+.pytype/
+
+# ============================
+# Cython
+# ============================
+cython_debug/
+
+# ============================
+# VS Code
+# ============================
+.vscode/
+.history/
+
+# ============================
+# JetBrains IDEs (PyCharm, IntelliJ, etc.)
+# ============================
+.idea/
+*.iml
+
+# ============================
+# Environment Files
+# ============================
+.env
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ============================
+# Mac / Windows
+# ============================
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ============================
+# Logs & Temp
+# ============================
+*.log
+*.tmp
+*.temp
+*.out
+*.pid
+
+# ============================
+# Data & Dumps
+# ============================
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.h5
+*.pkl
+*.joblib
+*.db
+*.sqlite
+*.sqlite3
+*.bak
+*.backup
+
+# ============================
+# Profiling / Performance
+# ============================
+*.prof
+*.profraw
+*.lprof
+.prof/
+.cachegrind
+.callgrind
+*.grind
+*.mem
+
+# ============================
+# Debug / REPL
+# ============================
+.pdbrc.py
+.python_history
+
+# ============================
+# Make / Build Tools
+# ============================
+Makefile.local
+
+# ============================
+# Containerization
+# ============================
+Dockerfile.local
+docker-compose.override.yml
+.docker/
+*.dockerfile
+
+# ============================
+# Cloud / Deployment Configs
+# ============================
+.aws/
+.aws-sam/
+.gcloud/
+.azure/
+.terraform/
+.terraform.lock.hcl
+serverless.yml
+.now/
+.vercel/
+netlify.toml
+
+# ============================
+# Editors / OS Specific
+# ============================
+*.swp
+*.swo
+*.orig
+*.bak
+
+# ============================
+# Santiq ETL Specific
+# ============================
+runs/
+output/
+tmp/
+temp/
+logs/
+cache/
+checkpoints/
+reports/
+profiles/
+.etl_cache/
+pipeline.lock
+config.local.yaml
+
+# ============================
+# Misc
+# ============================
+*.crt
+*.key
+*.pem
+*.sig
+*.asc

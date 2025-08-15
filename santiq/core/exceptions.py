@@ -58,3 +58,6 @@ class DataValidationError(SantiqError):
         self.message = message
         self.data_info = data_info or {}
         super().__init__(message)
+        
+class ETLError(Exception):
+    pass
