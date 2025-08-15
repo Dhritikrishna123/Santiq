@@ -1,0 +1,36 @@
+name: "Basic Data Cleaning Pipeline"
+description: "A simple pipeline that cleans CSV data and outputs clean results"
+
+# Extract data from CSV
+extractor:
+  plugin: csv_extractor
+  params:
+    path: "${INPUT_PATH}/sample_data.csv"
+    header: 0
+    encoding: "utf-8"
+
+# Profile the data to find issues
+profilers:
+  - plugin: basic_profiler
+    params: {}
+
+# Clean the data
+transformers:
+  - plugin: basic_cleaner
+    params:
+      drop_nulls: true
+      drop_duplicates: true
+      convert_types:
+        age: numeric
+        signup_date: datetime
+
+# Save cleaned data
+loaders:
+  - plugin: csv_loader
+    params:
+      path: "${OUTPUT_PATH}/cleaned_data.csv"
+      index: false
+
+# Global settings
+cache_intermediate: false
+max_memory_mb: 500
