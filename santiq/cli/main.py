@@ -8,7 +8,7 @@ from santiq.cli.commands.run import run_app
 
 app = typer.Typer(
     name="etl",
-    help="ETL Core - A lightweight, modular, plugin-first ETL platform",
+    help="santiq - A lightweight, modular, plugin-first ETL platform",
     no_args_is_help=True
 )
 
@@ -23,7 +23,7 @@ app.add_typer(plugin_app, name="plugin", help="Manage plugins")
 def version() -> None:
     """Show version information."""
     from santiq import __version__
-    console.print(f"ETL Core version {__version__}")
+    console.print(f"santiq version {__version__}")
 
 
 @app.command()
