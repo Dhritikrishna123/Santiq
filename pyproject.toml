@@ -27,6 +27,7 @@ dependencies = [
     "typer>=0.9.0",
     "rich>=13.0.0",
     "pydantic>=2.0.0",
+    "packaging>=22.0",
 ]
 
 [project.optional-dependencies]
@@ -70,3 +71,61 @@ python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
+
+[tool.coverage.run]
+source = ["santiq"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "setup.py",
+]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+show_missing = true
+skip_covered = true
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = [
+    "-ra",
+    "--strict-markers", 
+    "--strict-config",
+    "--cov=etl",
+    "--cov-report=term-missing:skip-covered",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests", 
+    "compatibility: marks tests as plugin compatibility tests",
+    "cli: marks tests as CLI-related tests",
+    "external_plugin: marks tests for external plugin development",
+    "github_workflow: marks tests specifically for GitHub Actions",
+]
+filterwarnings = [
+    "error",
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning", 
+    "ignore::PendingDeprecationWarning",
+]

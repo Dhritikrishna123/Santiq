@@ -28,7 +28,7 @@ class TestGitHubWorkflowCompatibility:
                               capture_output=True, text=True)
         
         assert result.returncode == 0
-        assert "Santiq" in result.stdout
+        assert "santiq" in result.stdout
 
     def test_basic_pipeline_execution_ci(self):
         """Test basic pipeline execution in CI environment."""

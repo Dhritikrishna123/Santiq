@@ -30,9 +30,9 @@ class AuditLogger:
         self.log_file = Path(log_file) if log_file else self._get_default_log_file()
         self.log_file.parent.mkdir(parents=True, exist_ok=True)
         
-        # Ensure log file exists
+        # Ensure log file exists (but don't initialize with content)
         if not self.log_file.exists():
-            self.log_file.write_text("[]")
+            self.log_file.touch()
     
     def _get_default_log_file(self) -> Path:
         """Get default audit log file location."""
@@ -42,7 +42,7 @@ class AuditLogger:
         else:  # Unix-like
             log_dir = os.getenv('XDG_DATA_HOME', os.path.expanduser('~/.local/share'))
         
-        return Path(log_dir) / 'etl-core' / 'audit.jsonl'
+        return Path(log_dir) / 'santiq' / 'audit.jsonl'
     
     def log_event(
         self,

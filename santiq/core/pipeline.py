@@ -27,7 +27,7 @@ class PipelineContext:
         if config.temp_dir:
             self.temp_dir = Path(config.temp_dir)
         else:
-            self.temp_dir = Path(tempfile.mkdtemp(prefix="etl_"))
+            self.temp_dir = Path(tempfile.mkdtemp(prefix="santiq_"))
     
     def cleanup(self) -> None:
         """Cleanup temporary resources."""

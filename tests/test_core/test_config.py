@@ -55,7 +55,7 @@ class TestConfigManager:
         with pytest.raises(PipelineConfigError) as exc_info:
             config_manager.load_pipeline_config(str(config_file))
         
-        assert "Invalid YAML" in str(exc_info.value)
+        assert "Error parsing YAML" in str(exc_info.value)
     
     def test_environment_variable_substitution(self, temp_dir: Path):
         """Test environment variable substitution."""

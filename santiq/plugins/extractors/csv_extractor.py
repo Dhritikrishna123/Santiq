@@ -33,7 +33,7 @@ class CSVExtractor(ExtractorPlugin):
             data = pd.read_csv(path, **pandas_params)
             return data
         except Exception as e:  
-            raise Exception(f"Failed to read csv file '{path}': '{e}'")
+            raise Exception(f"Failed to read CSV file '{path}': '{e}'")
         
         
     def _get_valid_pandas_params(self) -> List[str]:

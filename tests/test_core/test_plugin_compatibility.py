@@ -23,7 +23,7 @@ class TestPluginCompatibility:
         # Create a minimal external plugin
         plugin_code = '''
 import pandas as pd
-from etl.plugins.base.extractor import ExtractorPlugin
+from santiq.plugins.base.extractor import ExtractorPlugin
 
 class MyCustomExtractor(ExtractorPlugin):
     __plugin_name__ = "My Custom Extractor"
@@ -252,7 +252,7 @@ class TestPluginDevelopmentHelpers:
         # This serves as documentation for plugin developers
         minimal_extractor = '''
 import pandas as pd
-from etl.plugins.base.extractor import ExtractorPlugin
+from santiq.plugins.base.extractor import ExtractorPlugin
 
 class MinimalExtractor(ExtractorPlugin):
     """Minimal working extractor plugin."""

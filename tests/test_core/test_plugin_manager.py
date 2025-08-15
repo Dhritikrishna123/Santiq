@@ -53,7 +53,7 @@ class TestPluginDiscovery:
         
         # Create mock plugin file
         (plugin_dir / "test_plugin.py").write_text(
-            "from etl.plugins.base.extractor import ExtractorPlugin\n"
+            "from santiq.plugins.base.extractor import ExtractorPlugin\n"
             "import pandas as pd\n"
             "class TestPlugin(ExtractorPlugin):\n"
             "    def extract(self):\n"
