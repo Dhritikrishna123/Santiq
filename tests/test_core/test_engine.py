@@ -1,4 +1,4 @@
-"""Tests for ETL engine functionality."""
+"""Tests for santiq engine functionality."""
 
 import pytest
 from unittest.mock import Mock, patch
