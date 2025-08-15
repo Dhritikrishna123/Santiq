@@ -15,38 +15,38 @@ from santiq.core.engine import ETLEngine
 plugin_app = typer.Typer()
 console = Console()
 
-# Official plugin registry - this would be maintained by the ETL Core team
+# Official plugin registry - this would be maintained by the santiq team
 OFFICIAL_PLUGIN_REGISTRY = {
-    "advanced-csv": {
-        "package": "etl-plugin-advanced-csv",
-        "description": "Advanced CSV processing with encoding detection and repair",
-        "category": "extractor",
-        "official": True
-    },
-    "postgres": {
-        "package": "etl-plugin-postgres",
-        "description": "PostgreSQL database extractor and loader",
-        "category": "extractor,loader",
-        "official": True
-    },
-    "excel": {
-        "package": "etl-plugin-excel",
-        "description": "Excel file processing with multi-sheet support",
-        "category": "extractor,loader",
-        "official": True
-    },
-    "ai-cleaner": {
-        "package": "etl-plugin-ai-cleaner",
-        "description": "AI-powered data cleaning and transformation",
-        "category": "transformer",
-        "official": True
-    },
-    "fuzzy-matcher": {
-        "package": "etl-plugin-fuzzy-match",
-        "description": "Fuzzy string matching and deduplication",
-        "category": "transformer",
-        "official": False
-    }
+    # "advanced-csv": {
+    #     "package": "etl-plugin-advanced-csv",
+    #     "description": "Advanced CSV processing with encoding detection and repair",
+    #     "category": "extractor",
+    #     "official": True
+    # },
+    # "postgres": {
+    #     "package": "etl-plugin-postgres",
+    #     "description": "PostgreSQL database extractor and loader",
+    #     "category": "extractor,loader",
+    #     "official": True
+    # },
+    # "excel": {
+    #     "package": "etl-plugin-excel",
+    #     "description": "Excel file processing with multi-sheet support",
+    #     "category": "extractor,loader",
+    #     "official": True
+    # },
+    # "ai-cleaner": {
+    #     "package": "etl-plugin-ai-cleaner",
+    #     "description": "AI-powered data cleaning and transformation",
+    #     "category": "transformer",
+    #     "official": True
+    # },
+    # "fuzzy-matcher": {
+    #     "package": "etl-plugin-fuzzy-match",
+    #     "description": "Fuzzy string matching and deduplication",
+    #     "category": "transformer",
+    #     "official": False
+    # }
 }
 
 
