@@ -7,7 +7,7 @@ Thank you for your interest in contributing to Santiq! This document provides gu
 1. Fork the repository on GitHub
 2. Clone your fork locally:
    ```bash
-   git clone https://github.com/yourusername/santiq.git
+   git clone https://github.com/Dhritikrishna123/Santiq
    cd santiq
    ```
 
@@ -62,14 +62,16 @@ pytest tests/test_core/test_engine.py
 ## Submitting Changes
 
 1. Create a feature branch:
-   ```bash
+
+```bash
    git checkout -b feature/my-new-feature
    ```
 
 2. Make your changes and add tests
 
 3. Ensure all tests pass and code is formatted:
-   ```bash
+
+```bash
    black santiq tests
    isort santiq tests
    mypy santiq
