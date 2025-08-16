@@ -15,7 +15,7 @@ class CSVLoader(LoaderPlugin):
     __description__ = "Load data to CSV files with configurable options"
     __api_version__ = "1.0"
     
-    def _validate_config(self):
+    def _validate_config(self) -> None:
         """Validate CSV loader configuration"""
         if "path" not in self.config:
             raise ValueError("CSV loader requires 'path' parameter")
@@ -25,7 +25,14 @@ class CSVLoader(LoaderPlugin):
         path = self.config["path"]
         
         # create directory if doesn't exist
-        Path(path).parent.mkdir(parents=True, exist_ok=True)
+        try:
+            Path(path).parent.mkdir(parents=True, exist_ok=True)
+        except (OSError, PermissionError) as e:
+            return LoadResult(
+                success=False,
+                rows_loaded=0,
+                metadata={"error": f"Cannot create directory: {e}", "output_path": path}
+            )
         
         # Extract pandas to CSV Paramaters 
         pandas_params = {

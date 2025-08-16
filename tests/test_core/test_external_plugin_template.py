@@ -171,7 +171,7 @@ class TestExtractorPlugin(ExtractorPlugin):
             
             # Create plugin manifest
             manifest = {
-                "name": "test_transformer",
+                "name": "test_transformer_unique",
                 "type": "transformer",
                 "version": "1.0.0",
                 "api_version": "1.0",
@@ -278,11 +278,15 @@ class TestTransformerPlugin(TransformerPlugin):
             plugin_file = plugin_dir / "plugin.py"
             plugin_file.write_text(plugin_code)
             
+            # Create __init__.py to make it a proper Python package
+            init_file = plugin_dir / "__init__.py"
+            init_file.write_text("")
+            
             # Test plugin loading and functionality
             plugin_manager = PluginManager(local_plugin_dirs=[str(temp_path)])
             
             config = {"standardize_names": True, "validate_emails": True}
-            instance = plugin_manager.create_plugin_instance("test_transformer", "transformer", config)
+            instance = plugin_manager.create_plugin_instance("test_transformer_unique", "transformer", config)
             
             # Test transformation
             test_data = pd.DataFrame({

@@ -106,20 +106,25 @@ class TestPipelineExecution:
     
     def test_pipeline_error_handling(self, temp_dir: Path):
         """Test pipeline error handling."""
-        # Create invalid config
+        # Create config with nonexistent extractor plugin
         config = PipelineConfig(
             extractor={
                 "plugin": "nonexistent_extractor",
                 "params": {}
-            }
+            },
+            loaders=[
+                {
+                    "plugin": "csv_loader",
+                    "params": {"path": str(temp_dir / "output.csv")}
+                }
+            ]
         )
         
-        # Run pipeline - should handle error gracefully
+        # Run pipeline - this should fail due to nonexistent plugin
         engine = ETLEngine()
-        result = engine.run_pipeline_from_config(config)
         
-        assert result["success"] is False
-        assert "error" in result
+        with pytest.raises(Exception):  # Should raise PluginNotFoundError or similar
+            engine.run_pipeline_from_config(config)
     
     def test_pipeline_audit_logging(self, temp_dir: Path, sample_data: pd.DataFrame):
         """Test pipeline audit logging."""

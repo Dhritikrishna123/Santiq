@@ -2,6 +2,7 @@
 
 import importlib
 import importlib.metadata
+import importlib.util
 import os
 import sys
 import subprocess
@@ -86,7 +87,7 @@ class PluginManager:
         Returns:
             Dictionary mapping plugin types to lists of plugin information
         """
-        plugins = {plugin_type: [] for plugin_type in self.PLUGIN_TYPES}
+        plugins: Dict[str, List[Dict[str, Any]]] = {plugin_type: [] for plugin_type in self.PLUGIN_TYPES}
         
         # Discover entry point plugins (built-in and installed from PyPI)
         for plugin_type in self.PLUGIN_TYPES:  # Fixed: was self.Plugin_Types
@@ -108,6 +109,9 @@ class PluginManager:
                 local_plugins = self._discover_local_plugins(plugin_dir)
                 for plugin_type, plugin_list in local_plugins.items():
                     plugins[plugin_type].extend(plugin_list)
+            except PluginLoadError:
+                # Re-raise PluginLoadError to maintain validation behavior
+                raise
             except Exception as e:
                 print(f"Warning: Failed to discover local plugins in {plugin_dir}: {e}")
         
@@ -167,7 +171,7 @@ class PluginManager:
         Returns:
             Dictionary mapping plugin types to lists of plugin information
         """
-        plugins = {plugin_type: [] for plugin_type in self.PLUGIN_TYPES}
+        plugins: Dict[str, List[Dict[str, Any]]] = {plugin_type: [] for plugin_type in self.PLUGIN_TYPES}
         plugin_path = Path(plugin_dir)
         
         if not plugin_path.exists():
@@ -198,6 +202,9 @@ class PluginManager:
                 
             except yaml.YAMLError as e:
                 print(f"Warning: Failed to parse YAML in {manifest_file}: {e}")
+            except PluginLoadError:
+                # Re-raise PluginLoadError to maintain validation behavior
+                raise
             except Exception as e:
                 print(f"Warning: Failed to load local plugin {manifest_file}: {e}")
         
@@ -246,9 +253,24 @@ class PluginManager:
             module_name, class_name = entry_point_str.split(":", 1)
             
             try:
+                # Check if module already exists and force reload
+                if module_name in sys.modules:
+                    del sys.modules[module_name]
                 module = importlib.import_module(module_name)
             except ImportError as e:
-                raise PluginLoadError(plugin_name, e)
+                # Try to load the module from the plugin directory
+                try:
+                    module_file = plugin_dir / f"{module_name}.py"
+                    spec = importlib.util.spec_from_file_location(module_name, module_file)
+                    if spec and spec.loader:
+                        module = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(module)
+                        # Ensure the module is registered in sys.modules
+                        sys.modules[module_name] = module
+                    else:
+                        raise PluginLoadError(plugin_name, e)
+                except Exception as load_error:
+                    raise PluginLoadError(plugin_name, e) from load_error
             
             if not hasattr(module, class_name):
                 raise PluginLoadError(
@@ -266,6 +288,32 @@ class PluginManager:
                     raise PluginLoadError(
                         plugin_name,
                         Exception(f"Plugin must inherit from {expected_base.__name__}")
+                    )
+            
+            # Validate that the plugin has required methods
+            if plugin_type == "extractor":
+                if not hasattr(plugin_class, 'extract') or not callable(getattr(plugin_class, 'extract')):
+                    raise PluginLoadError(
+                        plugin_name,
+                        Exception("Extractor plugin must implement extract() method")
+                    )
+            elif plugin_type == "transformer":
+                if not hasattr(plugin_class, 'transform') or not callable(getattr(plugin_class, 'transform')):
+                    raise PluginLoadError(
+                        plugin_name,
+                        Exception("Transformer plugin must implement transform() method")
+                    )
+            elif plugin_type == "profiler":
+                if not hasattr(plugin_class, 'profile') or not callable(getattr(plugin_class, 'profile')):
+                    raise PluginLoadError(
+                        plugin_name,
+                        Exception("Profiler plugin must implement profile() method")
+                    )
+            elif plugin_type == "loader":
+                if not hasattr(plugin_class, 'load') or not callable(getattr(plugin_class, 'load')):
+                    raise PluginLoadError(
+                        plugin_name,
+                        Exception("Loader plugin must implement load() method")
                     )
             
             return {
@@ -292,7 +340,7 @@ class PluginManager:
         Returns:
             Dictionary mapping plugin types to lists of plugin information
         """
-        plugins = {plugin_type: [] for plugin_type in self.PLUGIN_TYPES}
+        plugins: Dict[str, List[Dict[str, Any]]] = {plugin_type: [] for plugin_type in self.PLUGIN_TYPES}
         
         for plugin_name, plugin_config in self._external_plugins.items():
             try:
@@ -475,7 +523,7 @@ class PluginManager:
         """
         return self._discover_external_plugins()
     
-    def load_plugin(self, plugin_name: str, plugin_type: str) -> PluginClass:
+    def load_plugin(self, plugin_name: str, plugin_type: str) -> Type[PluginType]:
         """Load a specific plugin by name and type.
         
         Args:

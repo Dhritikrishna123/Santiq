@@ -131,39 +131,30 @@ class BadPlugin:
         plugin_file = temp_dir / "bad_plugin.py"
         plugin_file.write_text(bad_plugin_code)
         
-        # Try to load it
-        plugin_manager = PluginManager()
+        # Create a manifest file for the bad plugin
+        manifest = {
+            "name": "bad_plugin",
+            "type": "extractor",
+            "entry_point": "bad_plugin:BadPlugin",
+            "version": "1.0.0",
+            "api_version": "1.0",
+            "description": "Bad plugin for testing"
+        }
         
-        # Mock discovery to return our bad plugin
-        with patch.object(plugin_manager, 'discover_plugins') as mock_discover:
-            # Load the module dynamically to get the class
-            spec = importlib.util.spec_from_file_location("bad_plugin", plugin_file)
-            module = importlib.util.module_from_spec(spec)
-            sys.modules["bad_plugin"] = module
-            spec.loader.exec_module(module)
-            
-            mock_discover.return_value = {
-                "extractor": [{
-                    "name": "bad_plugin",
-                    "class": module.BadPlugin,
-                    "api_version": "1.0",
-                    "source": "test"
-                }],
-                "profiler": [],
-                "transformer": [],
-                "loader": []
-            }
-            
-            # The test should fail because the plugin doesn't inherit from the correct base class
-            # The validation happens during plugin discovery, not during load_plugin
-            # So we need to test the discovery process directly
-            with pytest.raises(PluginLoadError) as exc_info:
-                # Try to discover plugins which should trigger validation
-                plugin_manager.discover_plugins()
-            
-            # The error should be caught during discovery, but since we're mocking it,
-            # we'll just verify that the bad plugin class doesn't inherit correctly
-            assert not issubclass(module.BadPlugin, ExtractorPlugin)
+        manifest_file = temp_dir / "plugin.yml"
+        import yaml
+        with open(manifest_file, 'w') as f:
+            yaml.dump(manifest, f)
+        
+        # Try to load it - this should fail during discovery
+        plugin_manager = PluginManager(local_plugin_dirs=[str(temp_dir)])
+        
+        # The validation should happen during discovery and fail
+        with pytest.raises(PluginLoadError) as exc_info:
+            plugin_manager.discover_plugins()
+        
+        # Verify the error message
+        assert "Plugin must inherit from" in str(exc_info.value)
     
     def test_plugin_configuration_validation(self, test_plugin_classes):
         """Test plugin configuration validation."""

@@ -42,6 +42,16 @@ class ETLEngine:
         """Run a pipeline from configuration object."""
         return self.pipeline.execute(config, mode, pipeline_id)
     
+    def run_pipeline_from_file(
+        self,
+        config_path: str,
+        mode: str = "manual",
+        pipeline_id: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Run a pipeline from configuration file."""
+        config = self.config_manager.load_pipeline_config(config_path)
+        return self.pipeline.execute(config, mode, pipeline_id)
+    
     def list_plugins(self, plugin_type: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
         """List all available plugins."""
         return self.plugin_manager.list_plugins(plugin_type)
@@ -71,6 +81,17 @@ class ETLEngine:
         """Uninstall an external plugin package."""
         return self.plugin_manager.uninstall_external_plugin(plugin_name, package_name)
     
+    def is_package_installed(self, package_name: str) -> bool:
+        """Check if a package is installed.
+        
+        Args:
+            package_name: Name of the package to check
+            
+        Returns:
+            True if package is installed, False otherwise
+        """
+        return self.plugin_manager._is_package_installed(package_name)
+    
     def get_pipeline_history(self, pipeline_id: str) -> List[Dict[str, Any]]:
         """Get execution history for a pipeline."""
         events = self.audit_logger.get_pipeline_events(pipeline_id)
@@ -81,3 +102,20 @@ class ETLEngine:
         events = self.audit_logger.get_recent_events(limit)
         pipeline_events = [e for e in events if e.event_type == "pipeline_start"]
         return [event.model_dump() for event in pipeline_events]
+    
+    def get_audit_log(self, pipeline_id: Optional[str] = None, limit: int = 100) -> List[Dict[str, Any]]:
+        """Get audit log entries.
+        
+        Args:
+            pipeline_id: Optional pipeline ID to filter events
+            limit: Maximum number of events to return
+            
+        Returns:
+            List of audit events as dictionaries
+        """
+        if pipeline_id:
+            events = self.audit_logger.get_pipeline_events(pipeline_id)
+        else:
+            events = self.audit_logger.get_recent_events(limit)
+        
+        return [event.model_dump() for event in events]
