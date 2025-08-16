@@ -16,6 +16,7 @@ class TestCLICommands:
     def setUp(self):
         self.runner = CliRunner()
     
+    @pytest.mark.cli
     def test_version_command(self):
         """Test version command."""
         runner = CliRunner()
@@ -24,6 +25,7 @@ class TestCLICommands:
         assert result.exit_code == 0
         assert "santiq version" in result.stdout
     
+    @pytest.mark.cli
     def test_init_command(self):
         """Test pipeline initialization command."""
         runner = CliRunner()
@@ -44,6 +46,7 @@ class TestCLICommands:
                 assert "name: test_pipeline" in content
                 assert "csv_extractor" in content
     
+    @pytest.mark.cli
     def test_init_existing_file(self):
         """Test init command with existing file."""
         runner = CliRunner()
@@ -58,6 +61,7 @@ class TestCLICommands:
                 assert result.exit_code == 1
                 assert "already exists" in result.stdout
     
+    @pytest.mark.cli
     @patch('santiq.core.engine.ETLEngine.run_pipeline')
     def test_run_pipeline_command(self, mock_run):
         """Test running pipeline from CLI."""
@@ -80,6 +84,7 @@ class TestCLICommands:
             assert "Pipeline completed successfully" in result.stdout
             assert mock_run.called
     
+    @pytest.mark.cli
     def test_plugin_list_command(self):
         """Test plugin list command."""
         runner = CliRunner()
@@ -89,6 +94,7 @@ class TestCLICommands:
         # Should show plugin categories
         assert any(word in result.stdout.lower() for word in ["extractor", "loader", "profiler", "transformer"])
     
+    @pytest.mark.cli
     @patch('subprocess.run')
     def test_plugin_install_command(self, mock_subprocess):
         """Test plugin installation command."""

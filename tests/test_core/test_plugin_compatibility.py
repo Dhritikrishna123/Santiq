@@ -16,6 +16,7 @@ from santiq.plugins.base.profiler import ProfileResult, ProfilerPlugin
 from santiq.plugins.base.transformer import TransformerPlugin, TransformResult
 
 
+@pytest.mark.compatibility
 class TestPluginCompatibility:
     """Test plugin API compatibility for external plugin development."""
     
@@ -200,6 +201,7 @@ class BadPlugin:
         instance.teardown.assert_called_once()
 
 
+@pytest.mark.compatibility
 class TestPluginDevelopmentHelpers:
     """Test utilities that help with plugin development."""
     
