@@ -144,6 +144,23 @@ See [Plugin Development Guide](docs/plugin_development.md) for detailed instruct
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
+## Documentation
+
+### 📚 User Documentation
+- **[User Guide](docs/user_guide.md)** - Comprehensive guide for using Santiq
+- **[Quick Reference](docs/quick_reference.md)** - Quick commands and configuration reference
+
+### 🔌 Plugin Development
+- **[Plugin Development Guide](docs/plugin_development.md)** - Create custom plugins for Santiq
+- **[External Plugin Guide](docs/external_plugin_guide.md)** - Manage external plugin configurations
+- **[External Plugin Development Guide](docs/external_plugin_development_guide.md)** - Develop and distribute external plugins
+
+### 🚀 Getting Started
+1. **Install**: `pip install santiq`
+2. **Quick Start**: See [User Guide](docs/user_guide.md#getting-started)
+3. **First Pipeline**: `santiq init my-pipeline`
+4. **Run**: `santiq run pipeline my-pipeline.yml`
+
 ## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
