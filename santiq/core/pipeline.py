@@ -13,6 +13,7 @@ from santiq.core.exceptions import PipelineExecutionError
 from santiq.core.plugin_manager import PluginManager
 from santiq.plugins.base.profiler import ProfileResult
 
+
 class PipelineContext:
     """Holds pipeline execution context and state."""
     

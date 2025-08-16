@@ -1,11 +1,12 @@
 """CSV loader plugin."""
 
 from pathlib import Path
-from typing import Any,List, Dict
+from typing import Any, Dict, List
 
 import pandas as pd
 
-from santiq.plugins.base.loader import LoadResult, LoaderPlugin
+from santiq.plugins.base.loader import LoaderPlugin, LoadResult
+
 
 class CSVLoader(LoaderPlugin):
     """Load Data to CSV files"""

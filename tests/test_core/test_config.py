@@ -1,9 +1,10 @@
 """Tests for configuration management."""
 
-import pytest
 import os
 import tempfile
 from pathlib import Path
+
+import pytest
 import yaml
 
 from santiq.core.config import ConfigManager, PipelineConfig, PluginConfig

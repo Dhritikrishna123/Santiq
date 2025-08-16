@@ -1,10 +1,11 @@
 """Tests for CLI commands."""
 
-import pytest
-from unittest.mock import Mock, patch
-from typer.testing import CliRunner
 import tempfile
 from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
+from typer.testing import CliRunner
 
 from santiq.cli.main import app
 

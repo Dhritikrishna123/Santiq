@@ -1,10 +1,11 @@
 """Special test for GitHub Actions workflow compatibility."""
 
-import pytest
 import os
 import subprocess
 import sys
 from pathlib import Path
+
+import pytest
 
 
 class TestGitHubWorkflowCompatibility:
@@ -33,9 +34,11 @@ class TestGitHubWorkflowCompatibility:
     def test_basic_pipeline_execution_ci(self):
         """Test basic pipeline execution in CI environment."""
         import tempfile
+
         import pandas as pd
-        from santiq.core.engine import ETLEngine
+
         from santiq.core.config import PipelineConfig
+        from santiq.core.engine import ETLEngine
         
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
@@ -88,9 +91,11 @@ class TestGitHubWorkflowCompatibility:
         """Test environment variable substitution works in CI."""
         import os
         import tempfile
+
         import yaml
+
         from santiq.core.config import ConfigManager
-        
+
         # Set test environment variables
         os.environ["CI_INPUT_PATH"] = "/test/input"
         os.environ["CI_OUTPUT_PATH"] = "/test/output"

@@ -8,6 +8,7 @@ from santiq.core.config import ConfigManager, PipelineConfig
 from santiq.core.pipeline import Pipeline
 from santiq.core.plugin_manager import PluginManager
 
+
 class ETLEngine:
     """Main engine for executing ETL pipelines."""
     

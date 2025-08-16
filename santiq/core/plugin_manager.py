@@ -3,20 +3,24 @@
 import importlib
 import importlib.metadata
 import os
-from pathlib import Path
 import sys
-from typing import Any, Dict, List, Optional, Union, Type
-from santiq import __version__ as core_full_version
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Type, Union
 
 import yaml
 from packaging import version
 
-from santiq.core.exceptions import PluginError, PluginLoadError, PluginNotFoundError, PluginVersionError
+from santiq import __version__ as core_full_version
+from santiq.core.exceptions import (
+    PluginError,
+    PluginLoadError,
+    PluginNotFoundError,
+    PluginVersionError,
+)
 from santiq.plugins.base.extractor import ExtractorPlugin
+from santiq.plugins.base.loader import LoaderPlugin
 from santiq.plugins.base.profiler import ProfilerPlugin
 from santiq.plugins.base.transformer import TransformerPlugin
-from santiq.plugins.base.loader import LoaderPlugin
-
 
 PluginType = Union[ExtractorPlugin, ProfilerPlugin, TransformerPlugin, LoaderPlugin]
 PluginClass = Type[PluginType]

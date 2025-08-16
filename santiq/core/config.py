@@ -4,8 +4,9 @@ import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
+
 import yaml
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from santiq.core.exceptions import PipelineConfigError
 

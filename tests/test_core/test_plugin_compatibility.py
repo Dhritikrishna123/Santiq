@@ -1,18 +1,19 @@
 """Tests for plugin API compatibility and external plugin development."""
 
-import pytest
+import importlib.util
 import sys
+import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch
-import tempfile
-import importlib.util
 
+import pytest
+
+from santiq.core.exceptions import PluginLoadError, PluginVersionError
 from santiq.core.plugin_manager import PluginManager
-from santiq.core.exceptions import PluginVersionError, PluginLoadError
 from santiq.plugins.base.extractor import ExtractorPlugin
-from santiq.plugins.base.transformer import TransformerPlugin, TransformResult
-from santiq.plugins.base.profiler import ProfilerPlugin, ProfileResult
 from santiq.plugins.base.loader import LoaderPlugin, LoadResult
+from santiq.plugins.base.profiler import ProfileResult, ProfilerPlugin
+from santiq.plugins.base.transformer import TransformerPlugin, TransformResult
 
 
 class TestPluginCompatibility:

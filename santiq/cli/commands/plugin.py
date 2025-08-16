@@ -1,14 +1,15 @@
 """CLI commands for plugin management."""
 
+import json
 import subprocess
 import sys
-import json
 from pathlib import Path
 from typing import Dict, List, Optional
+
 import typer
 from rich.console import Console
-from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 from santiq.core.engine import ETLEngine
 

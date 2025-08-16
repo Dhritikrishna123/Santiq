@@ -28,20 +28,20 @@ def run_command(cmd: List[str], description: str = "") -> int:
 
 def run_unit_tests(coverage: bool = True, verbose: bool = False) -> int:
     """Run unit tests."""
-    cmd = ["pytest", "tests/test_core/", "tests/test_plugins/"]
+    cmd = ["pytest", "tests/test_core/"]
     
     if verbose:
         cmd.append("-v")
     
     if coverage:
-        cmd.extend(["--cov=etl", "--cov-report=term-missing"])
+        cmd.extend(["--cov=santiq", "--cov-report=term-missing"])
     
     return run_command(cmd, "Unit Tests")
 
 
 def run_integration_tests(verbose: bool = False) -> int:
     """Run integration tests."""
-    cmd = ["pytest", "tests/test_integration/"]
+    cmd = ["pytest", "tests/test_core/test_pipeline_execution.py"]
     
     if verbose:
         cmd.append("-v")
@@ -51,7 +51,7 @@ def run_integration_tests(verbose: bool = False) -> int:
 
 def run_cli_tests(verbose: bool = False) -> int:
     """Run CLI tests."""
-    cmd = ["pytest", "tests/test_cli/"]
+    cmd = ["pytest", "tests/test_core/test_commands.py"]
     
     if verbose:
         cmd.append("-v")
@@ -61,7 +61,7 @@ def run_cli_tests(verbose: bool = False) -> int:
 
 def run_compatibility_tests(verbose: bool = False) -> int:
     """Run plugin compatibility tests."""
-    cmd = ["pytest", "tests/test_compatibility/", "tests/test_plugin_development/"]
+    cmd = ["pytest", "tests/test_core/test_plugin_compatibility.py", "tests/test_core/test_external_plugin_template.py"]
     
     if verbose:
         cmd.append("-v")
@@ -71,7 +71,7 @@ def run_compatibility_tests(verbose: bool = False) -> int:
 
 def run_github_workflow_tests(verbose: bool = False) -> int:
     """Run GitHub workflow specific tests."""
-    cmd = ["pytest", "tests/github_workflow_test.py"]
+    cmd = ["pytest", "tests/test_core/github_workflow_test.py"]
     
     if verbose:
         cmd.append("-v")
@@ -81,13 +81,12 @@ def run_github_workflow_tests(verbose: bool = False) -> int:
 
 def run_external_plugin_tests(verbose: bool = False) -> int:
     """Run external plugin development tests."""
-    cmd = ["pytest", "tests/test_plugin_development/"]
+    cmd = ["pytest", "tests/test_core/test_external_plugin_template.py"]
     
     if verbose:
         cmd.append("-v")
     
     return run_command(cmd, "External Plugin Development Tests")
-
 
 def run_linting() -> int:
     """Run code linting checks."""
@@ -95,19 +94,19 @@ def run_linting() -> int:
     
     # Black formatting check
     exit_codes.append(run_command(
-        ["black", "--check", "--diff", "etl", "tests"],
+        ["black", "--check", "--diff", "santiq", "tests"],
         "Black Code Formatting Check"
     ))
     
     # Import sorting check
     exit_codes.append(run_command(
-        ["isort", "--check-only", "--diff", "etl", "tests"],
+        ["isort", "--check-only", "--profile", "black", "santiq", "tests"],
         "Import Sorting Check"
     ))
     
     # Type checking
     exit_codes.append(run_command(
-        ["mypy", "etl", "--ignore-missing-imports"],
+        ["mypy", "santiq", "--ignore-missing-imports"],
         "Type Checking"
     ))
     
@@ -121,7 +120,7 @@ def run_security_checks() -> int:
     # Bandit security check
     try:
         exit_codes.append(run_command(
-            ["bandit", "-r", "etl", "-f", "json"],
+            ["bandit", "-r", "santiq", "-f", "json"],
             "Security Vulnerability Check"
         ))
     except:
@@ -181,8 +180,8 @@ print("Benchmark data created successfully")
     performance_test_script = """
 import time
 import pandas as pd
-from etl.core.engine import ETLEngine
-from etl.core.config import PipelineConfig
+from santiq.core.engine import ETLEngine
+from santiq.core.config import PipelineConfig
 from pathlib import Path
 
 engine = ETLEngine()

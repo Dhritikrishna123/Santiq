@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
+
 class ExtractorPlugin(ABC):
     """Base class for all extractor plugins."""
     
