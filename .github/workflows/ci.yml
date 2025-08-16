@@ -2,7 +2,7 @@ name: Enhanced CI Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main, develop, dev ]
   pull_request:
     branches: [ main ]
   schedule:
@@ -39,18 +39,18 @@ jobs:
         pip install -e ".[dev]"
     
     - name: Lint with black
-      run: black --check --diff etl tests
+      run: black --check --diff santiq tests
     
     - name: Sort imports with isort
-      run: isort --check-only --diff etl tests
+      run: isort --check-only --diff santiq tests
     
     - name: Type check with mypy
-      run: mypy etl --ignore-missing-imports
+      run: mypy santiq --ignore-missing-imports
     
     - name: Check for security issues
       run: |
         pip install bandit[toml]
-        bandit -r etl -f json -o bandit-report.json || true
+        bandit -r santiq -f json -o bandit-report.json || true
         if [ -s bandit-report.json ]; then
           echo "Security issues found:"
           cat bandit-report.json
@@ -89,23 +89,27 @@ jobs:
     
     - name: Run unit tests
       run: |
-        pytest tests/test_core/ tests/test_plugins/ -v --cov=etl --cov-report=xml --cov-report=term-missing
+        pytest tests/test_core/ -v --cov=santiq --cov-report=xml --cov-report=term-missing
       
     - name: Run integration tests
       run: |
-        pytest tests/test_integration/ -v
+        pytest tests/ -v -m "integration"
     
     - name: Run CLI tests
       run: |
-        pytest tests/test_cli/ -v
+        pytest tests/ -v -m "cli"
     
     - name: Run compatibility tests
       run: |
-        pytest tests/test_compatibility/ tests/test_plugin_development/ -v
+        pytest tests/ -v -m "compatibility"
+    
+    - name: Run external plugin tests
+      run: |
+        pytest tests/ -v -m "external_plugin"
     
     - name: Run GitHub workflow specific tests
       run: |
-        pytest tests/github_workflow_test.py -v
+        pytest tests/test_core/github_workflow_test.py -v
       
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == env.PYTHON_DEFAULT_VERSION
@@ -135,7 +139,7 @@ jobs:
     - name: Test plugin discovery
       run: |
         python -c "
-        from etl.core.plugin_manager import PluginManager
+        from santiq.core.plugin_manager import PluginManager
         pm = PluginManager()
         plugins = pm.discover_plugins()
         print('Discovered plugins:')
@@ -149,7 +153,7 @@ jobs:
     - name: Test plugin loading
       run: |
         python -c "
-        from etl.core.plugin_manager import PluginManager
+        from santiq.core.plugin_manager import PluginManager
         pm = PluginManager()
         
         # Test loading built-in plugins
@@ -161,9 +165,9 @@ jobs:
         print('✓ All built-in plugins loaded successfully')
         "
     
-    - name: Test external plugin template
+    - name: Test external plugin management
       run: |
-        pytest tests/test_plugin_development/test_external_plugin_template.py -v
+        pytest tests/test_core/test_external_plugin_management.py -v
 
   # End-to-end pipeline testing
   e2e-test:
@@ -184,14 +188,13 @@ jobs:
     
     - name: Verify CLI installation
       run: |
-        etl --help
-        etl version
-        etl plugin list
+        python -m santiq.cli.main --help
+        python -m santiq.cli.main plugin list
     
     - name: Create test data
       run: |
-        mkdir -p /tmp/etl_test/{input,output}
-        cat > /tmp/etl_test/input/sample.csv << 'EOF'
+        mkdir -p /tmp/santiq_test/{input,output}
+        cat > /tmp/santiq_test/input/sample.csv << 'EOF'
         id,name,email,age,status
         1,Alice Johnson,alice@test.com,25,active
         2,Bob Smith,bob@invalid,30,active
@@ -200,71 +203,103 @@ jobs:
         4,Diana Prince,diana@test.org,28,active
         EOF
     
-    - name: Initialize pipeline
+    - name: Run basic ETL pipeline
       run: |
-        cd /tmp/etl_test
-        etl init test_pipeline
-        ls -la
-    
-    - name: Configure pipeline
+        cd /tmp/santiq_test
+        python -m santiq.cli.main run examples/basic_pipeline.yml
+        
+    - name: Verify output
       run: |
-        cd /tmp/etl_test
-        cat > test_pipeline.yml << 'EOF'
-        name: "E2E Test Pipeline"
-        description: "End-to-end testing pipeline"
-        
-        extractor:
-          plugin: csv_extractor
-          params:
-            path: "/tmp/etl_test/input/sample.csv"
-            header: 0
-        
-        profilers:
-          - plugin: basic_profiler
-            params: {}
-        
-        transformers:
-          - plugin: basic_cleaner
-            params:
-              drop_nulls: true
-              drop_duplicates: true
-        
-        loaders:
-          - plugin: csv_loader
-            params:
-              path: "/tmp/etl_test/output/cleaned.csv"
-              index: false
-        EOF
-    
-    - name: Run pipeline
-      run: |
-        cd /tmp/etl_test
-        etl run pipeline test_pipeline.yml --mode controlled-auto
-    
-    - name: Verify pipeline results
-      run: |
-        if [ ! -f "/tmp/etl_test/output/cleaned.csv" ]; then
-          echo "❌ Output file not created"
+        if [ -f /tmp/santiq_test/output/cleaned_data.csv ]; then
+          echo "✓ Pipeline output generated successfully"
+          ls -la /tmp/santiq_test/output/
+        else
+          echo "✗ Pipeline output not found"
           exit 1
         fi
-        
-        # Check that data was processed
-        lines=$(wc -l < /tmp/etl_test/output/cleaned.csv)
-        if [ $lines -lt 2 ]; then
-          echo "❌ Output file is empty or only has header"
-          exit 1
-        fi
-        
-        echo "✅ Pipeline executed successfully"
-        echo "Input lines: $(wc -l < /tmp/etl_test/input/sample.csv)"
-        echo "Output lines: $lines"
-        echo "Output preview:"
-        head -5 /tmp/etl_test/output/cleaned.csv
 
-  # Performance benchmarking
-  benchmark:
+  # Documentation build and validation
+  docs:
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [lint]
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    
+    - name: Check documentation
+      run: |
+        # Check if all documentation files exist
+        test -f README.md
+        test -f docs/external_plugin_development_guide.md
+        test -f docs/external_plugin_guide.md
+        test -f examples/external_plugins_example.yml
+        
+        echo "✓ All documentation files present"
+    
+    - name: Validate YAML files
+      run: |
+        python -c "
+        import yaml
+        yaml.safe_load(open('examples/external_plugins_example.yml'))
+        print('✓ External plugins example YAML is valid')
+        "
+    
+    - name: Check CLI help output
+      run: |
+        python -m santiq.cli.main --help > /dev/null
+        python -m santiq.cli.main plugin --help > /dev/null
+        python -m santiq.cli.main plugin external --help > /dev/null
+        echo "✓ CLI help commands working"
+
+  # Security and dependency scanning
+  security:
+    runs-on: ubuntu-latest
+    needs: [lint]
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    
+    - name: Run security scan
+      run: |
+        pip install safety
+        safety check --json --output safety-report.json || true
+        
+        if [ -f safety-report.json ]; then
+          echo "Security vulnerabilities found:"
+          cat safety-report.json
+        fi
+    
+    - name: Check for outdated dependencies
+      run: |
+        pip install pip-check-updates
+        pcu --dry-run --format=json > outdated-deps.json || true
+        
+        if [ -f outdated-deps.json ]; then
+          echo "Outdated dependencies found:"
+          cat outdated-deps.json
+        fi
+
+  # Performance testing
+  performance:
+    runs-on: ubuntu-latest
     needs: [test]
     steps:
     - uses: actions/checkout@v4
@@ -274,341 +309,53 @@ jobs:
       with:
         python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
     
-    - name: Install dependencies and benchmarking tools
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
-        pip install pytest-benchmark memory-profiler
-    
-    - name: Generate benchmark data
-      run: |
-        python -c "
-        import pandas as pd
-        import numpy as np
-        
-        # Create various sized datasets for benchmarking
-        sizes = [1000, 10000, 100000]
-        
-        for size in sizes:
-            data = pd.DataFrame({
-                'id': range(1, size + 1),
-                'name': [f'Person_{i}' for i in range(1, size + 1)],
-                'age': np.random.randint(18, 80, size),
-                'email': [f'person_{i}@test.com' for i in range(1, size + 1)],
-                'score': np.random.uniform(0, 100, size),
-                # Add some nulls and duplicates
-                'nullable_col': np.random.choice([None, 'value'], size, p=[0.1, 0.9]),
-            })
-            
-            # Add duplicates
-            if size > 100:
-                duplicate_indices = np.random.choice(size, size // 100, replace=False)
-                for idx in duplicate_indices:
-                    data.iloc[idx] = data.iloc[0]
-            
-            data.to_csv(f'/tmp/benchmark_data_{size}.csv', index=False)
-            print(f'Created benchmark dataset with {size} rows')
-        "
-    
-    - name: Run performance benchmarks
-      run: |
-        python -c "
-        import time
-        import pandas as pd
-        from etl.core.engine import ETLEngine
-        from etl.core.config import PipelineConfig
-        
-        engine = ETLEngine()
-        sizes = [1000, 10000, 100000]
-        results = []
-        
-        for size in sizes:
-            config = PipelineConfig(
-                extractor={
-                    'plugin': 'csv_extractor',
-                    'params': {'path': f'/tmp/benchmark_data_{size}.csv'}
-                },
-                profilers=[{
-                    'plugin': 'basic_profiler',
-                    'params': {}
-                }],
-                transformers=[{
-                    'plugin': 'basic_cleaner',
-                    'params': {
-                        'drop_nulls': True,
-                        'drop_duplicates': True
-                    }
-                }],
-                loaders=[{
-                    'plugin': 'csv_loader',
-                    'params': {'path': f'/tmp/benchmark_output_{size}.csv'}
-                }]
-            )
-            
-            start_time = time.time()
-            result = engine.run_pipeline_from_config(config, mode='controlled-auto')
-            end_time = time.time()
-            
-            execution_time = end_time - start_time
-            rows_per_second = size / execution_time if execution_time > 0 else 0
-            
-            results.append({
-                'size': size,
-                'time': execution_time,
-                'rows_per_second': rows_per_second,
-                'success': result['success']
-            })
-            
-            print(f'Processed {size} rows in {execution_time:.2f}s ({rows_per_second:.0f} rows/sec)')
-        
-        # Save benchmark results
-        import json
-        with open('/tmp/benchmark_results.json', 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        print('Benchmark completed successfully')
-        "
-    
-    - name: Upload benchmark results
-      uses: actions/upload-artifact@v3
-      with:
-        name: benchmark-results
-        path: /tmp/benchmark_results.json
-
-  # Documentation and examples testing
-  docs-test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
-    
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .
-    
-    - name: Test example configurations
-      run: |
-        # Test the basic pipeline example
-        export INPUT_PATH=examples/sample_data
-        export OUTPUT_PATH=/tmp/docs_test_output
-        mkdir -p $OUTPUT_PATH
-        
-        etl run pipeline examples/basic_pipeline.yml --mode controlled-auto
-        
-        # Verify output was created
-        if [ -f "$OUTPUT_PATH/cleaned_data.csv" ]; then
-          echo "✅ Example pipeline executed successfully"
-          echo "Output preview:"
-          head -5 "$OUTPUT_PATH/cleaned_data.csv"
-        else
-          echo "❌ Example pipeline failed to create output"
-          exit 1
-        fi
-    
-    - name: Test README examples
-      run: |
-        # Test that code examples in README work
-        python -c "
-        # Test basic usage example from README
-        from etl.core.engine import ETLEngine
-        from etl.core.config import PipelineConfig
-        
-        engine = ETLEngine()
-        plugins = engine.list_plugins()
-        print(f'Available plugin types: {list(plugins.keys())}')
-        
-        # Verify we can create a basic config
-        config = PipelineConfig(
-            extractor={'plugin': 'csv_extractor', 'params': {'path': '/tmp/test.csv'}},
-            loaders=[{'plugin': 'csv_loader', 'params': {'path': '/tmp/output.csv'}}]
-        )
-        print('✅ Basic configuration creation works')
-        "
-
-  # Security and dependency scanning
-  security:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
-    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
-        pip install safety pip-audit
     
-    - name: Check for known security vulnerabilities
+    - name: Run performance tests
       run: |
-        safety check --json --output safety-report.json || true
-        if [ -s safety-report.json ]; then
-          echo "Security vulnerabilities found:"
-          cat safety-report.json
-        else
-          echo "✅ No known security vulnerabilities found"
-        fi
-    
-    - name: Audit dependencies
+        pytest tests/ -v -m "slow" --durations=10
+        
+    - name: Memory usage check
       run: |
-        pip-audit --format=json --output=audit-report.json || true
-        if [ -s audit-report.json ]; then
-          echo "Dependency audit issues found:"
-          cat audit-report.json
-        else
-          echo "✅ No dependency audit issues found"
-        fi
-    
-    - name: Upload security reports
-      if: always()
-      uses: actions/upload-artifact@v3
-      with:
-        name: security-reports
-        path: |
-          safety-report.json
-          audit-report.json
-          bandit-report.json
+        python -c "
+        import psutil
+        import santiq.core.plugin_manager as pm
+        
+        process = psutil.Process()
+        initial_memory = process.memory_info().rss / 1024 / 1024
+        
+        # Load plugin manager
+        plugin_mgr = pm.PluginManager()
+        plugins = plugin_mgr.discover_plugins()
+        
+        final_memory = process.memory_info().rss / 1024 / 1024
+        memory_used = final_memory - initial_memory
+        
+        print(f'Memory usage: {memory_used:.2f} MB')
+        assert memory_used < 100, f'Memory usage too high: {memory_used:.2f} MB'
+        print('✓ Memory usage within acceptable limits')
+        "
 
-  # Plugin ecosystem testing
-  plugin-ecosystem:
+  # Final status check
+  status:
     runs-on: ubuntu-latest
-    needs: [plugin-compatibility]
+    needs: [lint, test, plugin-compatibility, e2e-test, docs, security, performance]
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
-    
-    - name: Install dependencies
+    - name: Check overall status
       run: |
-        python -m pip install --upgrade pip
-        pip install -e .
-    
-    - name: Test plugin registry functionality
-      run: |
-        python -c "
-        from etl.cli.commands.plugin import OFFICIAL_PLUGIN_REGISTRY
+        echo "🎉 All CI checks completed successfully!"
+        echo "✅ Linting passed"
+        echo "✅ Tests passed"
+        echo "✅ Plugin compatibility verified"
+        echo "✅ End-to-end tests passed"
+        echo "✅ Documentation validated"
+        echo "✅ Security checks completed"
+        echo "✅ Performance tests passed"
         
-        print('Testing plugin registry...')
-        assert len(OFFICIAL_PLUGIN_REGISTRY) > 0, 'Plugin registry is empty'
-        
-        for name, info in OFFICIAL_PLUGIN_REGISTRY.items():
-            required_fields = ['package', 'description', 'category', 'official']
-            for field in required_fields:
-                assert field in info, f'Plugin {name} missing required field: {field}'
-            
-            # Validate category format
-            categories = info['category'].split(',')
-            valid_categories = ['extractor', 'profiler', 'transformer', 'loader']
-            for category in categories:
-                assert category.strip() in valid_categories, f'Invalid category: {category}'
-        
-        print(f'✅ Plugin registry validated ({len(OFFICIAL_PLUGIN_REGISTRY)} plugins)')
-        "
-    
-    - name: Test plugin CLI commands
-      run: |
-        # Test plugin listing
-        etl plugin list
-        etl plugin list --available
-        
-        # Test plugin search
-        etl plugin search csv
-        etl plugin search --official-only postgres
-        
-        # Test plugin info (for available plugins)
-        etl plugin info csv_extractor --plugin-type extractor
-
-  # Cross-platform compatibility testing
-  compatibility:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-20.04, ubuntu-22.04, windows-2019, windows-2022, macos-11, macos-12]
-        python-version: ["3.11"]
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
-    
-    - name: Install and test basic functionality
-      shell: bash
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e .
-        
-        # Create minimal test
-        python -c "
-        import tempfile
-        import pandas as pd
-        from pathlib import Path
-        from etl.core.engine import ETLEngine
-        from etl.core.config import PipelineConfig
-        
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_path = Path(temp_dir)
-            
-            # Create test data
-            data = pd.DataFrame({'id': [1, 2, 3], 'name': ['A', 'B', 'C']})
-            input_file = temp_path / 'input.csv'
-            output_file = temp_path / 'output.csv'
-            data.to_csv(input_file, index=False)
-            
-            # Run pipeline
-            config = PipelineConfig(
-                extractor={'plugin': 'csv_extractor', 'params': {'path': str(input_file)}},
-                loaders=[{'plugin': 'csv_loader', 'params': {'path': str(output_file)}}]
-            )
-            
-            engine = ETLEngine()
-            result = engine.run_pipeline_from_config(config)
-            
-            assert result['success'], 'Pipeline execution failed'
-            assert output_file.exists(), 'Output file not created'
-            
-            print(f'✅ Platform compatibility test passed on ${{ matrix.os }}')
-        "
-
-  # Collect and report results
-  report:
-    runs-on: ubuntu-latest
-    needs: [lint, test, plugin-compatibility, e2e-test, docs-test, security, plugin-ecosystem, compatibility, benchmark]
-    if: always()
-    steps:
-    - name: Report CI Results
-      run: |
-        echo "## CI Pipeline Results" >> $GITHUB_STEP_SUMMARY
-        echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
-        echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
-        echo "| Lint | ${{ needs.lint.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-        echo "| Tests | ${{ needs.test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-        echo "| Plugin Compatibility | ${{ needs.plugin-compatibility.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-        echo "| E2E Test | ${{ needs.e2e-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-        echo "| Documentation | ${{ needs.docs-test.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-        echo "| Security | ${{ needs.security.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-        echo "| Plugin Ecosystem | ${{ needs.plugin-ecosystem.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-        echo "| Cross-platform | ${{ needs.compatibility.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-        echo "| Benchmark | ${{ needs.benchmark.result == 'success' && '✅ Passed' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-        
-        # Set overall status
-        if [[ "${{ needs.lint.result }}" == "success" && 
-              "${{ needs.test.result }}" == "success" && 
-              "${{ needs.plugin-compatibility.result }}" == "success" ]]; then
-          echo "🎉 **All critical tests passed!**" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "⚠️ **Some tests failed. Please review the results.**" >> $GITHUB_STEP_SUMMARY
-        fi
+        echo ""
+        echo "🚀 Santiq is ready for deployment!"

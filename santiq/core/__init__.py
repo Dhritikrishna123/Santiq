@@ -1,1 +1,3 @@
-__version__ = "1.0.0"
+"""Core Santiq modules for ETL operations."""
+
+__version__ = "0.1.0"

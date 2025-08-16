@@ -41,7 +41,7 @@ def run_unit_tests(coverage: bool = True, verbose: bool = False) -> int:
 
 def run_integration_tests(verbose: bool = False) -> int:
     """Run integration tests."""
-    cmd = ["pytest", "tests/test_core/test_pipeline_execution.py"]
+    cmd = ["pytest", "tests/", "-m", "integration"]
     
     if verbose:
         cmd.append("-v")
@@ -51,7 +51,7 @@ def run_integration_tests(verbose: bool = False) -> int:
 
 def run_cli_tests(verbose: bool = False) -> int:
     """Run CLI tests."""
-    cmd = ["pytest", "tests/test_core/test_commands.py"]
+    cmd = ["pytest", "tests/", "-m", "cli"]
     
     if verbose:
         cmd.append("-v")
@@ -61,7 +61,7 @@ def run_cli_tests(verbose: bool = False) -> int:
 
 def run_compatibility_tests(verbose: bool = False) -> int:
     """Run plugin compatibility tests."""
-    cmd = ["pytest", "tests/test_core/test_plugin_compatibility.py", "tests/test_core/test_external_plugin_template.py"]
+    cmd = ["pytest", "tests/", "-m", "compatibility"]
     
     if verbose:
         cmd.append("-v")
@@ -80,13 +80,14 @@ def run_github_workflow_tests(verbose: bool = False) -> int:
 
 
 def run_external_plugin_tests(verbose: bool = False) -> int:
-    """Run external plugin development tests."""
-    cmd = ["pytest", "tests/test_core/test_external_plugin_template.py"]
+    """Run external plugin management tests."""
+    cmd = ["pytest", "tests/", "-m", "external_plugin"]
     
     if verbose:
         cmd.append("-v")
     
-    return run_command(cmd, "External Plugin Development Tests")
+    return run_command(cmd, "External Plugin Management Tests")
+
 
 def run_linting() -> int:
     """Run code linting checks."""
@@ -138,7 +139,7 @@ import numpy as np
 from pathlib import Path
 
 # Create benchmark data directory
-benchmark_dir = Path("/tmp/etl_benchmark")
+benchmark_dir = Path("/tmp/santiq_benchmark")
 benchmark_dir.mkdir(exist_ok=True)
 
 # Create datasets of different sizes
@@ -185,7 +186,7 @@ from santiq.core.config import PipelineConfig
 from pathlib import Path
 
 engine = ETLEngine()
-benchmark_dir = Path("/tmp/etl_benchmark")
+benchmark_dir = Path("/tmp/santiq_benchmark")
 sizes = [1000, 10000]
 results = []
 
@@ -254,8 +255,8 @@ def run_all_tests(verbose: bool = False, include_slow: bool = False) -> int:
         (lambda: run_integration_tests(verbose=verbose), "Integration Tests"),
         (lambda: run_cli_tests(verbose=verbose), "CLI Tests"),
         (lambda: run_compatibility_tests(verbose=verbose), "Compatibility Tests"),
+        (lambda: run_external_plugin_tests(verbose=verbose), "External Plugin Management Tests"),
         (lambda: run_github_workflow_tests(verbose=verbose), "GitHub Workflow Tests"),
-        (lambda: run_external_plugin_tests(verbose=verbose), "External Plugin Tests"),
         (run_security_checks, "Security Checks"),
     ]
     
@@ -310,14 +311,14 @@ def run_all_tests(verbose: bool = False, include_slow: bool = False) -> int:
 def main():
     """Main test runner function."""
     parser = argparse.ArgumentParser(
-        description="satiq Test Runner",
+        description="santiq Test Runner",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
   python scripts/run_tests.py --all                 # Run all tests
   python scripts/run_tests.py --unit                # Run only unit tests  
   python scripts/run_tests.py --integration         # Run only integration tests
-  python scripts/run_tests.py --external-plugin     # Test external plugin compatibility
+  python scripts/run_tests.py --external-plugin     # Test external plugin management
   python scripts/run_tests.py --github-workflow     # Run GitHub workflow tests
   python scripts/run_tests.py --lint                # Run only linting checks
   python scripts/run_tests.py --performance         # Run performance benchmarks
@@ -331,7 +332,7 @@ Examples:
     parser.add_argument("--integration", action="store_true", help="Run integration tests")
     parser.add_argument("--cli", action="store_true", help="Run CLI tests")
     parser.add_argument("--compatibility", action="store_true", help="Run compatibility tests")
-    parser.add_argument("--external-plugin", action="store_true", help="Run external plugin tests")
+    parser.add_argument("--external-plugin", action="store_true", help="Run external plugin management tests")
     parser.add_argument("--github-workflow", action="store_true", help="Run GitHub workflow tests")
     parser.add_argument("--lint", action="store_true", help="Run linting checks")
     parser.add_argument("--security", action="store_true", help="Run security checks")

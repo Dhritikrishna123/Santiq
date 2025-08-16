@@ -97,8 +97,16 @@ class ConfigManager:
         default_paths = [
             os.getcwd(),  # Current working directory
             os.path.expanduser('~/.santiq'),  # User config directory
-            '/etc/santiq',  # System config directory (Unix-like)
         ]
+        
+        # Add system config directory only on Unix-like systems
+        if os.name == 'posix':
+            default_paths.append('/etc/santiq')  # System config directory (Unix-like)
+        elif os.name == 'nt':  # Windows
+            # Add Windows-specific config paths if needed
+            windows_config = os.path.expanduser('~/AppData/Local/santiq')
+            if os.path.exists(windows_config):
+                default_paths.append(windows_config)
         
         for path in default_paths:
             if path not in self.config_search_paths:

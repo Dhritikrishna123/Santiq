@@ -77,7 +77,7 @@ class AuditLogger:
     
     def get_pipeline_events(self, pipeline_id: str) -> List[AuditEvent]:
         """Get all events for a specific pipeline."""
-        events = []
+        events: List[AuditEvent] = []
         
         if not self.log_file.exists():
             return events
@@ -96,7 +96,7 @@ class AuditLogger:
     
     def get_recent_events(self, limit: int = 100) -> List[AuditEvent]:
         """Get the most recent audit events."""
-        events = []
+        events: List[AuditEvent] = []
         
         if not self.log_file.exists():
             return events

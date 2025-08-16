@@ -98,7 +98,8 @@ class Pipeline:
                 "success": True,
                 "rows_processed": len(context.data) if context.data is not None else 0,
                 "fixes_applied": context.applied_fixes,
-                "load_results": load_results
+                "load_results": load_results,
+                "data": context.data
             }
             
         except Exception as e:
@@ -129,6 +130,10 @@ class Pipeline:
                 plugin_name=config.plugin,
                 plugin_type="extractor"
             )
+            
+            # Ensure the extractor has the extract method
+            if not hasattr(extractor, 'extract') or not callable(extractor.extract):
+                raise AttributeError(f"Plugin {config.plugin} does not have a callable 'extract' method")
             
             data = extractor.extract()
             
@@ -177,6 +182,10 @@ class Pipeline:
                     plugin_name=profiler_config.plugin,
                     plugin_type="profiler"
                 )
+                
+                # Ensure the profiler has the profile method
+                if not hasattr(profiler, 'profile') or not callable(profiler.profile):
+                    raise AttributeError(f"Plugin {profiler_config.plugin} does not have a callable 'profile' method")
                 
                 result = profiler.profile(context.data)
                 results.append(result)
@@ -231,6 +240,13 @@ class Pipeline:
                     plugin_name=transformer_config.plugin,
                     plugin_type="transformer"
                 )
+                
+                # Ensure the transformer has the required methods
+                if not hasattr(transformer, 'transform') or not callable(transformer.transform):
+                    raise AttributeError(f"Plugin {transformer_config.plugin} does not have a callable 'transform' method")
+                
+                if not hasattr(transformer, 'suggest_fixes') or not callable(transformer.suggest_fixes):
+                    raise AttributeError(f"Plugin {transformer_config.plugin} does not have a callable 'suggest_fixes' method")
                 
                 # Get suggestions if in interactive mode
                 if mode in ["manual", "half-auto"]:
@@ -299,6 +315,10 @@ class Pipeline:
                     plugin_name=loader_config.plugin,
                     plugin_type="loader"
                 )
+                
+                # Ensure the loader has the load method
+                if not hasattr(loader, 'load') or not callable(loader.load):
+                    raise AttributeError(f"Plugin {loader_config.plugin} does not have a callable 'load' method")
                 
                 result = loader.load(context.data)
                 results.append({

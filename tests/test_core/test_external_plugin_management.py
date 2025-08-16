@@ -15,6 +15,7 @@ from santiq.core.engine import ETLEngine
 class TestExternalPluginConfiguration:
     """Test external plugin configuration loading and management."""
     
+    @pytest.mark.external_plugin
     def test_load_external_plugin_config(self, temp_dir: Path):
         """Test loading external plugin configuration from file."""
         # Create external plugin config
@@ -51,6 +52,7 @@ class TestExternalPluginConfiguration:
         assert plugin_info["type"] == "extractor"
         assert plugin_info["source"] == "external"
     
+    @pytest.mark.external_plugin
     def test_add_external_plugin_config(self, temp_dir: Path):
         """Test adding external plugin configuration."""
         # Create a unique config file for this test
@@ -77,6 +79,7 @@ class TestExternalPluginConfiguration:
         assert plugin_info["package"] == "new-package"
         assert plugin_info["type"] == "loader"
     
+    @pytest.mark.external_plugin
     def test_remove_external_plugin_config(self, temp_dir: Path):
         """Test removing external plugin configuration."""
         # Create a unique config file for this test
@@ -104,6 +107,7 @@ class TestExternalPluginConfiguration:
         external_plugins = plugin_manager.list_external_plugins()
         assert "profiler" not in external_plugins or len(external_plugins["profiler"]) == 0
     
+    @pytest.mark.external_plugin
     def test_get_external_plugin_info(self, temp_dir: Path):
         """Test getting external plugin information."""
         # Create a unique config file for this test
@@ -134,6 +138,7 @@ class TestExternalPluginConfiguration:
 class TestExternalPluginDiscovery:
     """Test external plugin discovery and integration."""
     
+    @pytest.mark.external_plugin
     def test_discover_plugins_includes_external(self, temp_dir: Path):
         """Test that external plugins are included in plugin discovery."""
         # Create external plugin config
@@ -170,6 +175,7 @@ class TestExternalPluginDiscovery:
         assert external_plugin is not None
         assert external_plugin["source"] == "external"
     
+    @pytest.mark.external_plugin
     def test_external_plugin_installation_status(self, temp_dir: Path):
         """Test tracking of external plugin installation status."""
         # Create a unique config file for this test
@@ -206,6 +212,7 @@ class TestExternalPluginDiscovery:
 class TestETLEngineIntegration:
     """Test ETLEngine integration with external plugins."""
     
+    @pytest.mark.external_plugin
     def test_engine_external_plugin_methods(self, temp_dir: Path):
         """Test ETLEngine methods for external plugin management."""
         # Create a unique config file for this test
@@ -246,6 +253,7 @@ class TestETLEngineIntegration:
 class TestExternalPluginCLI:
     """Test CLI integration with external plugins."""
     
+    @pytest.mark.external_plugin
     def test_cli_external_plugin_commands(self):
         """Test that CLI commands are properly registered."""
         from santiq.cli.commands.plugin import plugin_app
@@ -258,6 +266,7 @@ class TestExternalPluginCLI:
 class TestExternalPluginValidation:
     """Test external plugin configuration validation."""
     
+    @pytest.mark.external_plugin
     def test_invalid_plugin_type(self, temp_dir: Path):
         """Test handling of invalid plugin types."""
         # Create a unique config file for this test
@@ -281,6 +290,7 @@ class TestExternalPluginValidation:
             for plugin in plugins:
                 assert plugin["name"] != "invalid_plugin"
     
+    @pytest.mark.external_plugin
     def test_missing_required_fields(self, temp_dir: Path):
         """Test handling of missing required fields."""
         # Create a unique config file for this test

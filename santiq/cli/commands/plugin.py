@@ -578,7 +578,7 @@ def _add_external_plugin_config(plugin_name: str, package_name: str, plugin_type
         console.print(f"[blue]Type:[/blue] {plugin_type}")
         
         # Check if package is already installed
-        if engine._is_package_installed(package_name):
+        if engine.is_package_installed(package_name):
             console.print("[green]✓ Package is already installed[/green]")
         else:
             console.print("[yellow]⚠ Package not installed - use 'santiq plugin external install' to install[/yellow]")
@@ -601,7 +601,7 @@ def _remove_external_plugin_config(plugin_name: str) -> None:
         
         # Check if package is installed
         package_name = plugin_info.get("package")
-        if package_name and engine._is_package_installed(package_name):
+        if package_name and engine.is_package_installed(package_name):
             console.print(f"[yellow]Warning:[/yellow] Package '{package_name}' is still installed")
             console.print(f"[blue]Tip:[/blue] Uninstall package first with 'santiq plugin external uninstall {plugin_name}'")
         
@@ -649,7 +649,7 @@ def _install_external_plugin(plugin_name: str, package_name: Optional[str]) -> N
                 console.print(f"[green]✓ Successfully installed:[/green] {package_name}")
                 
                 # Verify installation
-                if engine._is_package_installed(package_name):
+                if engine.is_package_installed(package_name):
                     console.print(f"[green]✓ Package verification successful[/green]")
                 else:
                     console.print(f"[yellow]⚠ Package verification failed - plugin may not be available[/yellow]")
@@ -682,7 +682,7 @@ def _uninstall_external_plugin(plugin_name: str, package_name: Optional[str]) ->
             raise typer.Exit(1)
         
         # Check if package is installed
-        if not engine._is_package_installed(package_name):
+        if not engine.is_package_installed(package_name):
             console.print(f"[yellow]Package '{package_name}' is not installed[/yellow]")
             return
         

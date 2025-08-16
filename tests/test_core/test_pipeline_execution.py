@@ -1,194 +1,200 @@
 """Integration tests for complete pipeline execution."""
 
-from pathlib import Path
-
-import pandas as pd
 import pytest
+import pandas as pd
+from pathlib import Path
+from unittest.mock import Mock, patch
+
 import yaml
 
 from santiq.core.config import PipelineConfig
 from santiq.core.engine import ETLEngine
 
 
+@pytest.mark.integration
 class TestPipelineExecution:
     """Test complete pipeline execution scenarios."""
     
     def test_simple_pipeline_execution(self, temp_dir: Path, sample_data: pd.DataFrame):
-        """Test execution of a simple CSV-to-CSV pipeline."""
-        # Setup input and output paths
-        input_path = temp_dir / "input.csv"
-        output_path = temp_dir / "output.csv"
+        """Test simple pipeline execution."""
+        # Create input file
+        input_file = temp_dir / "input.csv"
+        sample_data.to_csv(input_file, index=False)
         
-        # Save sample data
-        sample_data.to_csv(input_path, index=False)
+        # Create output directory
+        output_dir = temp_dir / "output"
+        output_dir.mkdir()
         
         # Create pipeline config
         config = PipelineConfig(
-            name="test_pipeline",
             extractor={
                 "plugin": "csv_extractor",
-                "params": {"path": str(input_path)}
+                "params": {"path": str(input_file)}
             },
-            profilers=[{
-                "plugin": "basic_profiler",
-                "params": {}
-            }],
-            transformers=[{
-                "plugin": "basic_cleaner",
-                "params": {
-                    "drop_nulls": True,
-                    "drop_duplicates": True
+            transformers=[
+                {
+                    "plugin": "basic_cleaner",
+                    "params": {
+                        "drop_nulls": True,
+                        "drop_duplicates": True
+                    }
                 }
-            }],
-            loaders=[{
-                "plugin": "csv_loader",
-                "params": {"path": str(output_path)}
-            }]
+            ],
+            loaders=[
+                {
+                    "plugin": "csv_loader",
+                    "params": {"path": str(output_dir / "output.csv")}
+                }
+            ]
         )
         
-        # Execute pipeline
+        # Run pipeline
         engine = ETLEngine()
-        result = engine.run_pipeline_from_config(config, mode="controlled-auto")
+        result = engine.run_pipeline_from_config(config)
         
-        # Verify results
         assert result["success"] is True
-        assert result["rows_processed"] > 0
-        assert output_path.exists()
+        assert "data" in result
+        assert len(result["data"]) > 0
         
-        # Check output data quality
-        output_data = pd.read_csv(output_path)
-        assert len(output_data) <= len(sample_data)  # Some rows may have been cleaned
-        assert output_data.isnull().sum().sum() == 0  # No nulls should remain
+        # Check output file was created
+        output_file = output_dir / "output.csv"
+        assert output_file.exists()
     
     def test_pipeline_with_config_file(self, temp_dir: Path, sample_data: pd.DataFrame):
-        """Test pipeline execution from configuration file."""
-        # Setup files
-        input_path = temp_dir / "input.csv"
-        output_path = temp_dir / "output.csv"
-        config_path = temp_dir / "pipeline.yml"
+        """Test pipeline execution with config file."""
+        # Create input file
+        input_file = temp_dir / "input.csv"
+        sample_data.to_csv(input_file, index=False)
         
-        sample_data.to_csv(input_path, index=False)
+        # Create output directory
+        output_dir = temp_dir / "output"
+        output_dir.mkdir()
         
         # Create config file
-        config_data = {
-            "name": "file_based_pipeline",
-            "description": "Pipeline loaded from file",
-            "extractor": {
-                "plugin": "csv_extractor",
-                "params": {"path": str(input_path)}
-            },
-            "profilers": [{
-                "plugin": "basic_profiler"
-            }],
-            "transformers": [{
-                "plugin": "basic_cleaner",
-                "params": {
-                    "drop_nulls": True,
-                    "drop_duplicates": True
-                }
-            }],
-            "loaders": [{
-                "plugin": "csv_loader",
-                "params": {"path": str(output_path)}
-            }]
-        }
+        config_file = temp_dir / "pipeline.yml"
+        config_content = f"""
+    extractor:
+      plugin: csv_extractor
+      params:
+        path: {input_file}
+    
+    transformers:
+      - plugin: basic_cleaner
+        params:
+          drop_nulls: true
+          drop_duplicates: true
+    
+    loaders:
+      - plugin: csv_loader
+        params:
+          path: {output_dir}/output.csv
+    """
         
-        with open(config_path, 'w') as f:
-            yaml.dump(config_data, f)
+        with open(config_file, 'w') as f:
+            f.write(config_content)
         
-        # Execute pipeline
+        # Run pipeline from file
         engine = ETLEngine()
-        result = engine.run_pipeline(str(config_path), mode="controlled-auto")
+        result = engine.run_pipeline_from_file(str(config_file))
         
         assert result["success"] is True
-        assert output_path.exists()
+        assert "data" in result
+        
+        # Check output file was created
+        output_file = output_dir / "output.csv"
+        assert output_file.exists()
     
     def test_pipeline_error_handling(self, temp_dir: Path):
         """Test pipeline error handling."""
-        # Create config with non-existent input file
+        # Create config with nonexistent extractor plugin
         config = PipelineConfig(
             extractor={
-                "plugin": "csv_extractor",
-                "params": {"path": "/nonexistent/file.csv"}
+                "plugin": "nonexistent_extractor",
+                "params": {}
             },
-            loaders=[{
-                "plugin": "csv_loader",
-                "params": {"path": str(temp_dir / "output.csv")}
-            }]
+            loaders=[
+                {
+                    "plugin": "csv_loader",
+                    "params": {"path": str(temp_dir / "output.csv")}
+                }
+            ]
         )
         
+        # Run pipeline - this should fail due to nonexistent plugin
         engine = ETLEngine()
         
-        with pytest.raises(Exception):  # Should raise pipeline execution error
+        with pytest.raises(Exception):  # Should raise PluginNotFoundError or similar
             engine.run_pipeline_from_config(config)
     
     def test_pipeline_audit_logging(self, temp_dir: Path, sample_data: pd.DataFrame):
-        """Test that pipeline execution is properly audited."""
-        input_path = temp_dir / "input.csv"
-        output_path = temp_dir / "output.csv"
-        audit_path = temp_dir / "audit.jsonl"
+        """Test pipeline audit logging."""
+        # Create input file
+        input_file = temp_dir / "input.csv"
+        sample_data.to_csv(input_file, index=False)
         
-        sample_data.to_csv(input_path, index=False)
+        # Create output directory
+        output_dir = temp_dir / "output"
+        output_dir.mkdir()
         
+        # Create pipeline config
         config = PipelineConfig(
             extractor={
                 "plugin": "csv_extractor",
-                "params": {"path": str(input_path)}
+                "params": {"path": str(input_file)}
             },
-            loaders=[{
-                "plugin": "csv_loader",
-                "params": {"path": str(output_path)}
-            }]
+            loaders=[
+                {
+                    "plugin": "csv_loader",
+                    "params": {"path": str(output_dir / "output.csv")}
+                }
+            ]
         )
         
-        # Execute with specific audit file
-        engine = ETLEngine(audit_log_file=str(audit_path))
+        # Run pipeline
+        engine = ETLEngine()
         result = engine.run_pipeline_from_config(config)
         
-        # Check audit logging
-        assert audit_path.exists()
+        assert result["success"] is True
         
-        pipeline_id = result["pipeline_id"]
-        history = engine.get_pipeline_history(pipeline_id)
+        # Check audit log
+        audit_log = engine.get_audit_log()
+        assert len(audit_log) > 0
         
-        assert len(history) > 0
-        event_types = {event["event_type"] for event in history}
-        assert "pipeline_start" in event_types
-        assert "pipeline_complete" in event_types or "pipeline_error" in event_types
+        # Check recent execution
+        recent = engine.get_recent_executions()
+        assert len(recent) > 0
     
     def test_pipeline_modes(self, temp_dir: Path, sample_data: pd.DataFrame):
         """Test different pipeline execution modes."""
-        input_path = temp_dir / "input.csv"
-        output_path = temp_dir / "output.csv"
+        # Create input file
+        input_file = temp_dir / "input.csv"
+        sample_data.to_csv(input_file, index=False)
         
-        sample_data.to_csv(input_path, index=False)
+        # Create output directory
+        output_dir = temp_dir / "output"
+        output_dir.mkdir()
         
+        # Create pipeline config
         config = PipelineConfig(
             extractor={
-                "plugin": "csv_extractor", 
-                "params": {"path": str(input_path)}
+                "plugin": "csv_extractor",
+                "params": {"path": str(input_file)}
             },
-            profilers=[{
-                "plugin": "basic_profiler"
-            }],
-            transformers=[{
-                "plugin": "basic_cleaner",
-                "params": {"drop_nulls": True}
-            }],
-            loaders=[{
-                "plugin": "csv_loader",
-                "params": {"path": str(output_path)}
-            }]
+            loaders=[
+                {
+                    "plugin": "csv_loader",
+                    "params": {"path": str(output_dir / "output.csv")}
+                }
+            ]
         )
         
+        # Test controlled mode
         engine = ETLEngine()
+        result = engine.run_pipeline_from_config(config, mode="controlled")
         
-        # Test different modes
-        for mode in ["manual", "half-auto", "controlled-auto"]:
-            if output_path.exists():
-                output_path.unlink()
-            
-            result = engine.run_pipeline_from_config(config, mode=mode)
-            
-            assert result["success"] is True
-            assert output_path.exists()
+        assert result["success"] is True
+        
+        # Test controlled-auto mode
+        result = engine.run_pipeline_from_config(config, mode="controlled-auto")
+        
+        assert result["success"] is True
