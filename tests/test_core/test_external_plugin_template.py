@@ -1,18 +1,19 @@
 """Template and tests for external plugin development."""
 
-import pytest
-import tempfile
 import importlib.util
 import sys
+import tempfile
 from pathlib import Path
+from typing import Any, Dict, List
+
 import pandas as pd
-from typing import Dict, Any, List
+import pytest
 
 from santiq.core.plugin_manager import PluginManager
 from santiq.plugins.base.extractor import ExtractorPlugin
-from santiq.plugins.base.transformer import TransformerPlugin, TransformResult
-from santiq.plugins.base.profiler import ProfilerPlugin, ProfileResult
 from santiq.plugins.base.loader import LoaderPlugin, LoadResult
+from santiq.plugins.base.profiler import ProfileResult, ProfilerPlugin
+from santiq.plugins.base.transformer import TransformerPlugin, TransformResult
 
 
 class TestExternalPluginTemplate:
@@ -52,7 +53,7 @@ class TestExternalPluginTemplate:
             plugin_code = '''
 import pandas as pd
 from typing import Any, Dict
-from etl.plugins.base.extractor import ExtractorPlugin
+from santiq.plugins.base.extractor import ExtractorPlugin
 
 class TestExtractorPlugin(ExtractorPlugin):
     """Example external extractor plugin."""
@@ -171,7 +172,7 @@ class TestExtractorPlugin(ExtractorPlugin):
             plugin_code = '''
 import pandas as pd
 from typing import Any, Dict, List
-from etl.plugins.base.transformer import TransformerPlugin, TransformResult
+from santiq.plugins.base.transformer import TransformerPlugin, TransformResult
 
 class TestTransformerPlugin(TransformerPlugin):
     """Example external transformer plugin."""

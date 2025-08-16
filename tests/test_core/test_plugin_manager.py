@@ -1,14 +1,19 @@
 """Tests for plugin manager functionality."""
 
-import pytest
-from unittest.mock import Mock, patch, mock_open
 import importlib.metadata
 from pathlib import Path
+from unittest.mock import Mock, mock_open, patch
 
-from santiq.core.exceptions import PluginNotFoundError, PluginLoadError, PluginVersionError
+import pytest
+
+from santiq.core.exceptions import (
+    PluginLoadError,
+    PluginNotFoundError,
+    PluginVersionError,
+)
 from santiq.core.plugin_manager import PluginManager
-from santiq.plugins.extractors.csv_extractor import CSVExtractor
 from santiq.plugins.base.extractor import ExtractorPlugin
+from santiq.plugins.extractors.csv_extractor import CSVExtractor
 
 
 class TestPluginDiscovery:
@@ -53,7 +58,7 @@ class TestPluginDiscovery:
         
         # Create mock plugin file
         (plugin_dir / "test_plugin.py").write_text(
-            "from etl.plugins.base.extractor import ExtractorPlugin\n"
+            "from santiq.plugins.base.extractor import ExtractorPlugin\n"
             "import pandas as pd\n"
             "class TestPlugin(ExtractorPlugin):\n"
             "    def extract(self):\n"

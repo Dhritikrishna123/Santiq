@@ -1,11 +1,12 @@
 """Tests for extractor plugins."""
 
-import pytest
-import pandas as pd
 from pathlib import Path
 
-from santiq.plugins.extractors.csv_extractor import CSVExtractor
+import pandas as pd
+import pytest
+
 from santiq.plugins.base.extractor import ExtractorPlugin
+from santiq.plugins.extractors.csv_extractor import CSVExtractor
 
 
 class TestCSVExtractor:

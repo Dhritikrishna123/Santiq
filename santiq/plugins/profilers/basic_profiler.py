@@ -6,6 +6,7 @@ import pandas as pd
 
 from santiq.plugins.base.profiler import ProfileResult, ProfilerPlugin
 
+
 class BasicProfiler(ProfilerPlugin):
     """Basic data profiler plugin for SANTIQ."""
     __plugin_name__ = "Basic Profiler"

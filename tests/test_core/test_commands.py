@@ -1,10 +1,11 @@
 """Tests for CLI commands."""
 
-import pytest
-from unittest.mock import Mock, patch
-from typer.testing import CliRunner
 import tempfile
 from pathlib import Path
+from unittest.mock import Mock, patch
+
+import pytest
+from typer.testing import CliRunner
 
 from santiq.cli.main import app
 
@@ -21,7 +22,7 @@ class TestCLICommands:
         result = runner.invoke(app, ["version"])
         
         assert result.exit_code == 0
-        assert "ETL Core version" in result.stdout
+        assert "santiq version" in result.stdout
     
     def test_init_command(self):
         """Test pipeline initialization command."""
@@ -57,7 +58,7 @@ class TestCLICommands:
                 assert result.exit_code == 1
                 assert "already exists" in result.stdout
     
-    @patch('etl.core.engine.ETLEngine.run_pipeline')
+    @patch('santiq.core.engine.ETLEngine.run_pipeline')
     def test_run_pipeline_command(self, mock_run):
         """Test running pipeline from CLI."""
         mock_run.return_value = {

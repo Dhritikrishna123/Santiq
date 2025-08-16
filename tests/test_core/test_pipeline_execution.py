@@ -1,12 +1,13 @@
 """Integration tests for complete pipeline execution."""
 
-import pytest
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
+import pytest
 import yaml
 
-from santiq.core.engine import ETLEngine
 from santiq.core.config import PipelineConfig
+from santiq.core.engine import ETLEngine
 
 
 class TestPipelineExecution:

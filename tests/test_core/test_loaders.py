@@ -1,11 +1,12 @@
 """Tests for loader plugins."""
 
-import pytest
-import pandas as pd
 from pathlib import Path
 
-from santiq.plugins.loaders.csv_loader import CSVLoader
+import pandas as pd
+import pytest
+
 from santiq.plugins.base.loader import LoadResult
+from santiq.plugins.loaders.csv_loader import CSVLoader
 
 
 class TestCSVLoader:

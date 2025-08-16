@@ -7,7 +7,7 @@ from santiq.cli.commands.plugin import plugin_app
 from santiq.cli.commands.run import run_app
 
 app = typer.Typer(
-    name="etl",
+    name="santiq",
     help="santiq - A lightweight, modular, plugin-first ETL platform",
     no_args_is_help=True
 )

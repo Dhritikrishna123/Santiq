@@ -2,6 +2,7 @@
 
 from typing import Any, Optional
 
+
 class SantiqError(Exception):
     """Base class for all Santiq exceptions."""
     pass    

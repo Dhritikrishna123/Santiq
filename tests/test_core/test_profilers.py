@@ -1,10 +1,10 @@
 """Tests for profiler plugins."""
 
-import pytest
 import pandas as pd
+import pytest
 
-from santiq.plugins.profilers.basic_profiler import BasicProfiler
 from santiq.plugins.base.profiler import ProfileResult
+from santiq.plugins.profilers.basic_profiler import BasicProfiler
 
 
 class TestBasicProfiler:

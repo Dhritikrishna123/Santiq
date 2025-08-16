@@ -13,6 +13,7 @@ from santiq.core.exceptions import PipelineExecutionError
 from santiq.core.plugin_manager import PluginManager
 from santiq.plugins.base.profiler import ProfileResult
 
+
 class PipelineContext:
     """Holds pipeline execution context and state."""
     
@@ -27,7 +28,7 @@ class PipelineContext:
         if config.temp_dir:
             self.temp_dir = Path(config.temp_dir)
         else:
-            self.temp_dir = Path(tempfile.mkdtemp(prefix="etl_"))
+            self.temp_dir = Path(tempfile.mkdtemp(prefix="santiq_"))
     
     def cleanup(self) -> None:
         """Cleanup temporary resources."""

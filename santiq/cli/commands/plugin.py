@@ -1,14 +1,15 @@
 """CLI commands for plugin management."""
 
+import json
 import subprocess
 import sys
-import json
 from pathlib import Path
 from typing import Dict, List, Optional
+
 import typer
 from rich.console import Console
-from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 from santiq.core.engine import ETLEngine
 
@@ -101,7 +102,7 @@ def _show_available_plugins(plugin_type: Optional[str] = None) -> None:
         )
     
     console.print(table)
-    console.print(f"\n[blue]Tip:[/blue] Install plugins with [cyan]etl plugin install <name>[/cyan]")
+    console.print(f"\n[blue]Tip:[/blue] Install plugins with [cyan]santiq plugin install <name>[/cyan]")
 
 
 @plugin_app.command("install")
@@ -273,7 +274,7 @@ def search_plugins(
     
     if not found_plugins:
         console.print("[yellow]No plugins found matching your search.[/yellow]")
-        console.print(f"[blue]Tip:[/blue] Try [cyan]etl plugin list --available[/cyan] to see all available plugins")
+        console.print(f"[blue]Tip:[/blue] Try [cyan]santiq plugin list --available[/cyan] to see all available plugins")
         return
     
     table = Table()
@@ -339,11 +340,11 @@ def show_plugin_info(
         if not plugin_info:
             if plugin_name not in OFFICIAL_PLUGIN_REGISTRY:
                 console.print(f"[red]Error:[/red] Plugin '{plugin_name}' not found")
-                console.print("[blue]Tip:[/blue] Use [cyan]etl plugin search <name>[/cyan] to find available plugins")
+                console.print("[blue]Tip:[/blue] Use [cyan]santiq plugin search <name>[/cyan] to find available plugins")
                 raise typer.Exit(1)
             else:
                 console.print("[yellow]Plugin is in registry but not installed[/yellow]")
-                console.print(f"[blue]Install with:[/blue] [cyan]etl plugin install {plugin_name}[/cyan]")
+                console.print(f"[blue]Install with:[/blue] [cyan]santiq plugin install {plugin_name}[/cyan]")
                 return
         
         console.print(f"[blue]Installed Plugin Information:[/blue] {plugin_name}")
@@ -420,14 +421,14 @@ def _update_all_plugins(dry_run: bool, pre: bool) -> None:
         installed_packages = json.loads(result.stdout)
         etl_packages = [
             pkg["name"] for pkg in installed_packages
-            if pkg["name"].startswith("etl-plugin-") or pkg["name"] in [info["package"] for info in OFFICIAL_PLUGIN_REGISTRY.values()]
+            if pkg["name"].startswith("santiq-plugin-") or pkg["name"] in [info["package"] for info in OFFICIAL_PLUGIN_REGISTRY.values()]
         ]
         
         if not etl_packages:
-            console.print("[yellow]No ETL plugins found to update[/yellow]")
+            console.print("[yellow]No Santiq plugins found to update[/yellow]")
             return
         
-        console.print(f"[blue]Found {len(etl_packages)} ETL plugin(s) to update:[/blue]")
+        console.print(f"[blue]Found {len(etl_packages)} Santiq plugin(s) to update:[/blue]")
         for pkg in etl_packages:
             console.print(f"  • {pkg}")
         

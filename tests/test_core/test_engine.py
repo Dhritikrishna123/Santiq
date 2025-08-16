@@ -1,12 +1,14 @@
 """Tests for santiq engine functionality."""
 
-import pytest
-from unittest.mock import Mock, patch
 import uuid
 from pathlib import Path
+from unittest.mock import Mock, patch
 
-from santiq.core.engine import ETLEngine
+import pandas as pd
+import pytest
+
 from santiq.core.config import PipelineConfig
+from santiq.core.engine import ETLEngine
 from santiq.core.exceptions import PipelineConfigError
 
 
@@ -44,13 +46,17 @@ class TestETLEngine:
         assert "transformer" not in extractors
         assert "loader" not in extractors
     
-    @patch('etl.core.engine.ETLEngine.run_pipeline_from_config')
-    def test_run_pipeline_from_file(self, mock_run, temp_dir: Path, etl_engine: ETLEngine):
+    def test_run_pipeline_from_file(self, temp_dir: Path, etl_engine: ETLEngine):
         """Test running pipeline from configuration file."""
+        # Create test data file
+        test_data = pd.DataFrame({"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"]})
+        test_csv = temp_dir / "test.csv"
+        test_data.to_csv(test_csv, index=False)
+        
         # Create a config file
         config_data = {
-            "extractor": {"plugin": "csv_extractor", "params": {"path": "/test.csv"}},
-            "loaders": [{"plugin": "csv_loader", "params": {"path": "/output.csv"}}]
+            "extractor": {"plugin": "csv_extractor", "params": {"path": str(test_csv)}},
+            "loaders": [{"plugin": "csv_loader", "params": {"path": str(temp_dir / "output.csv")}}]
         }
         
         config_file = temp_dir / "pipeline.yml"
@@ -58,11 +64,9 @@ class TestETLEngine:
             import yaml
             yaml.dump(config_data, f)
         
-        mock_run.return_value = {"success": True, "pipeline_id": "test-123"}
-        
+        # This should work now since we have the actual file
         result = etl_engine.run_pipeline(str(config_file), mode="manual")
         
-        assert mock_run.called
         assert result["success"] is True
     
     def test_pipeline_history_tracking(self, etl_engine: ETLEngine):
