@@ -1,0 +1,64 @@
+# External Plugin Configuration Example
+# This file shows how to configure external plugins for Santiq
+# Place this file in ~/.santiq/external_plugins.yml or .santiq/external_plugins.yml
+
+plugins:
+  # Example: PostgreSQL Extractor Plugin
+  postgres_extractor:
+    package: "santiq-plugin-postgres-extractor"
+    type: "extractor"
+    description: "Extract data from PostgreSQL databases"
+    version: "1.0.0"
+    api_version: "1.0"
+    author: "Community Developer"
+    license: "MIT"
+    homepage: "https://github.com/example/santiq-plugin-postgres-extractor"
+    
+  # Example: JSON Transformer Plugin
+  json_transformer:
+    package: "santiq-plugin-json-transformer"
+    type: "transformer"
+    description: "Transform data to/from JSON format with validation"
+    version: "2.1.0"
+    api_version: "1.0"
+    author: "Another Developer"
+    license: "Apache-2.0"
+    homepage: "https://github.com/example/santiq-plugin-json-transformer"
+    
+  # Example: Elasticsearch Loader Plugin
+  elasticsearch_loader:
+    package: "santiq-plugin-elasticsearch-loader"
+    type: "loader"
+    description: "Load data to Elasticsearch with bulk operations"
+    version: "1.5.0"
+    api_version: "1.0"
+    author: "Data Team"
+    license: "MIT"
+    homepage: "https://github.com/example/santiq-plugin-elasticsearch-loader"
+    
+  # Example: Data Quality Profiler Plugin
+  data_quality_profiler:
+    package: "santiq-plugin-data-quality-profiler"
+    type: "profiler"
+    description: "Advanced data quality profiling with statistical analysis"
+    version: "3.0.0"
+    api_version: "1.0"
+    author: "Quality Team"
+    license: "GPL-3.0"
+    homepage: "https://github.com/example/santiq-plugin-data-quality-profiler"
+
+# Configuration Notes:
+# - package: The PyPI package name (required)
+# - type: One of extractor, transformer, profiler, or loader (required)
+# - description: Human-readable description of the plugin
+# - version: Plugin version (semantic versioning recommended)
+# - api_version: Santiq API version compatibility (use "1.0" for current)
+# - author: Plugin author/developer
+# - license: License information
+# - homepage: URL to plugin homepage or repository
+#
+# After adding configuration, install the plugin with:
+# santiq plugin external install <plugin_name>
+#
+# Example:
+# santiq plugin external install postgres_extractor

@@ -32,7 +32,8 @@ def list_plugins(
     plugin_type: Optional[str] = typer.Option(None, help="Filter by plugin type"),
     local_dir: Optional[str] = typer.Option(None, help="Include local plugin directory"),
     installed_only: bool = typer.Option(False, "--installed-only", help="Show only installed plugins"),
-    available: bool = typer.Option(False, "--available", help="Show available plugins from registry")
+    available: bool = typer.Option(False, "--available", help="Show available plugins from registry"),
+    external: bool = typer.Option(False, "--external", help="Show only external plugins")
 ) -> None:
     """List installed and available plugins."""
     
@@ -42,6 +43,10 @@ def list_plugins(
     
     if available:
         _show_available_plugins(plugin_type)
+        return
+    
+    if external:
+        _show_external_plugins(plugin_type)
         return
     
     local_dirs = [local_dir] if local_dir else None
@@ -59,18 +64,68 @@ def list_plugins(
         table.add_column("Version", style="green")
         table.add_column("API", style="yellow")
         table.add_column("Source", style="magenta")
+        table.add_column("Status", style="white")
         table.add_column("Description", style="white")
         
         for plugin in plugin_list:
+            source = plugin.get("source", "unknown")
+            status = ""
+            
+            if source == "external":
+                status = "✓ Installed" if plugin.get("installed", False) else "⚠ Not Installed"
+            else:
+                status = "✓ Available"
+            
             table.add_row(
                 plugin["name"],
                 plugin.get("version", "unknown"),
                 plugin.get("api_version", "unknown"),
-                plugin.get("source", "unknown"),
+                source,
+                status,
                 plugin.get("description", "")[:50] + ("..." if len(plugin.get("description", "")) > 50 else "")
             )
         
         console.print(table)
+
+
+def _show_external_plugins(plugin_type: Optional[str] = None) -> None:
+    """Show external plugins from configuration."""
+    console.print("[blue]External Plugins from Configuration:[/blue]\n")
+    
+    try:
+        engine = ETLEngine()
+        external_plugins = engine.list_external_plugins()
+        
+        if not any(external_plugins.values()):
+            console.print("[yellow]No external plugins configured[/yellow]")
+            console.print(f"[blue]Tip:[/blue] Add external plugins with [cyan]santiq plugin external add[/cyan]")
+            return
+        
+        table = Table()
+        table.add_column("Name", style="cyan")
+        table.add_column("Package", style="green")
+        table.add_column("Type", style="yellow")
+        table.add_column("Status", style="magenta")
+        table.add_column("Description", style="white")
+        
+        for ptype, plugin_list in external_plugins.items():
+            if plugin_type and ptype != plugin_type:
+                continue
+                
+            for plugin in plugin_list:
+                status = "✓ Installed" if plugin.get("installed", False) else "⚠ Not Installed"
+                table.add_row(
+                    plugin["name"],
+                    plugin.get("package", "unknown"),
+                    ptype,
+                    status,
+                    plugin.get("description", "")[:50] + ("..." if len(plugin.get("description", "")) > 50 else "")
+                )
+        
+        console.print(table)
+        
+    except Exception as e:
+        console.print(f"[red]Error loading external plugins:[/red] {e}")
 
 
 def _show_available_plugins(plugin_type: Optional[str] = None) -> None:
@@ -443,4 +498,204 @@ def _update_all_plugins(dry_run: bool, pre: bool) -> None:
         raise typer.Exit(1)
     except json.JSONDecodeError as e:
         console.print(f"[red]Error parsing package list:[/red] {e}")
+        raise typer.Exit(1)
+
+
+@plugin_app.command("external")
+def external_plugin_commands(
+    action: str = typer.Argument(..., help="Action: add, remove, list, install, uninstall"),
+    plugin_name: Optional[str] = typer.Argument(None, help="Plugin name"),
+    package_name: Optional[str] = typer.Option(None, "--package", help="PyPI package name"),
+    plugin_type: Optional[str] = typer.Option(None, "--type", help="Plugin type"),
+    description: Optional[str] = typer.Option(None, "--description", help="Plugin description"),
+    version: Optional[str] = typer.Option(None, "--version", help="Plugin version"),
+    api_version: Optional[str] = typer.Option(None, "--api-version", help="API version")
+) -> None:
+    """Manage external plugin configurations."""
+    
+    if action == "list":
+        _show_external_plugins(plugin_type)
+        return
+    
+    if action == "add":
+        if not plugin_name or not package_name or not plugin_type:
+            console.print("[red]Error:[/red] add action requires plugin_name, --package, and --type")
+            raise typer.Exit(1)
+        
+        if plugin_type not in ["extractor", "profiler", "transformer", "loader"]:
+            console.print("[red]Error:[/red] Plugin type must be one of: extractor, profiler, transformer, loader")
+            raise typer.Exit(1)
+        
+        _add_external_plugin_config(plugin_name, package_name, plugin_type, description, version, api_version)
+        return
+    
+    if action == "remove":
+        if not plugin_name:
+            console.print("[red]Error:[/red] remove action requires plugin_name")
+            raise typer.Exit(1)
+        
+        _remove_external_plugin_config(plugin_name)
+        return
+    
+    if action == "install":
+        if not plugin_name:
+            console.print("[red]Error:[/red] install action requires plugin_name")
+            raise typer.Exit(1)
+        
+        _install_external_plugin(plugin_name, package_name)
+        return
+    
+    if action == "uninstall":
+        if not plugin_name:
+            console.print("[red]Error:[/red] uninstall action requires plugin_name")
+            raise typer.Exit(1)
+        
+        _uninstall_external_plugin(plugin_name, package_name)
+        return
+    
+    console.print(f"[red]Error:[/red] Unknown action: {action}")
+    console.print("[blue]Available actions:[/blue] add, remove, list, install, uninstall")
+    raise typer.Exit(1)
+
+
+def _add_external_plugin_config(plugin_name: str, package_name: str, plugin_type: str,
+                                description: Optional[str], version: Optional[str], api_version: Optional[str]) -> None:
+    """Add external plugin configuration."""
+    try:
+        engine = ETLEngine()
+        
+        plugin_config = {
+            "package": package_name,
+            "type": plugin_type,
+            "description": description or f"External {plugin_type} plugin: {plugin_name}",
+            "version": version or "1.0.0",
+            "api_version": api_version or "1.0"
+        }
+        
+        engine.add_external_plugin_config(plugin_name, plugin_config)
+        console.print(f"[green]✓ Added external plugin configuration:[/green] {plugin_name}")
+        console.print(f"[blue]Package:[/blue] {package_name}")
+        console.print(f"[blue]Type:[/blue] {plugin_type}")
+        
+        # Check if package is already installed
+        if engine._is_package_installed(package_name):
+            console.print("[green]✓ Package is already installed[/green]")
+        else:
+            console.print("[yellow]⚠ Package not installed - use 'santiq plugin external install' to install[/yellow]")
+            
+    except Exception as e:
+        console.print(f"[red]Error adding external plugin configuration:[/red] {e}")
+        raise typer.Exit(1)
+
+
+def _remove_external_plugin_config(plugin_name: str) -> None:
+    """Remove external plugin configuration."""
+    try:
+        engine = ETLEngine()
+        
+        # Check if plugin exists
+        plugin_info = engine.get_external_plugin_info(plugin_name)
+        if not plugin_info:
+            console.print(f"[yellow]Plugin '{plugin_name}' not found in configuration[/yellow]")
+            return
+        
+        # Check if package is installed
+        package_name = plugin_info.get("package")
+        if package_name and engine._is_package_installed(package_name):
+            console.print(f"[yellow]Warning:[/yellow] Package '{package_name}' is still installed")
+            console.print(f"[blue]Tip:[/blue] Uninstall package first with 'santiq plugin external uninstall {plugin_name}'")
+        
+        engine.remove_external_plugin_config(plugin_name)
+        console.print(f"[green]✓ Removed external plugin configuration:[/green] {plugin_name}")
+        
+    except Exception as e:
+        console.print(f"[red]Error removing external plugin configuration:[/red] {e}")
+        raise typer.Exit(1)
+
+
+def _install_external_plugin(plugin_name: str, package_name: Optional[str]) -> None:
+    """Install external plugin package."""
+    try:
+        engine = ETLEngine()
+        
+        # Get plugin configuration
+        plugin_info = engine.get_external_plugin_info(plugin_name)
+        if not plugin_info:
+            console.print(f"[red]Error:[/red] Plugin '{plugin_name}' not found in configuration")
+            console.print(f"[blue]Tip:[/blue] Add configuration first with 'santiq plugin external add {plugin_name}'")
+            raise typer.Exit(1)
+        
+        # Use provided package name or from config
+        if not package_name:
+            package_name = plugin_info.get("package")
+        
+        if not package_name:
+            console.print(f"[red]Error:[/red] No package name specified for plugin '{plugin_name}'")
+            raise typer.Exit(1)
+        
+        console.print(f"[blue]Installing external plugin:[/blue] {plugin_name} ({package_name})")
+        
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            console=console,
+        ) as progress:
+            task = progress.add_task(f"Installing {package_name}...", total=None)
+            
+            success = engine.install_external_plugin(plugin_name, package_name)
+            
+            if success:
+                progress.update(task, completed=True)
+                console.print(f"[green]✓ Successfully installed:[/green] {package_name}")
+                
+                # Verify installation
+                if engine._is_package_installed(package_name):
+                    console.print(f"[green]✓ Package verification successful[/green]")
+                else:
+                    console.print(f"[yellow]⚠ Package verification failed - plugin may not be available[/yellow]")
+            else:
+                console.print(f"[red]✗ Installation failed:[/red] {package_name}")
+                raise typer.Exit(1)
+                
+    except Exception as e:
+        console.print(f"[red]Error installing external plugin:[/red] {e}")
+        raise typer.Exit(1)
+
+
+def _uninstall_external_plugin(plugin_name: str, package_name: Optional[str]) -> None:
+    """Uninstall external plugin package."""
+    try:
+        engine = ETLEngine()
+        
+        # Get plugin configuration
+        plugin_info = engine.get_external_plugin_info(plugin_name)
+        if not plugin_info:
+            console.print(f"[red]Error:[/red] Plugin '{plugin_name}' not found in configuration")
+            raise typer.Exit(1)
+        
+        # Use provided package name or from config
+        if not package_name:
+            package_name = plugin_info.get("package")
+        
+        if not package_name:
+            console.print(f"[red]Error:[/red] No package name specified for plugin '{plugin_name}'")
+            raise typer.Exit(1)
+        
+        # Check if package is installed
+        if not engine._is_package_installed(package_name):
+            console.print(f"[yellow]Package '{package_name}' is not installed[/yellow]")
+            return
+        
+        console.print(f"[blue]Uninstalling external plugin:[/blue] {plugin_name} ({package_name})")
+        
+        success = engine.uninstall_external_plugin(plugin_name, package_name)
+        
+        if success:
+            console.print(f"[green]✓ Successfully uninstalled:[/green] {package_name}")
+        else:
+            console.print(f"[red]✗ Uninstallation failed:[/red] {package_name}")
+            raise typer.Exit(1)
+            
+    except Exception as e:
+        console.print(f"[red]Error uninstalling external plugin:[/red] {e}")
         raise typer.Exit(1)

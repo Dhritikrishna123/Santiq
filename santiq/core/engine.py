@@ -15,9 +15,10 @@ class ETLEngine:
     def __init__(
         self,
         local_plugin_dirs: Optional[List[str]] = None,
+        external_plugin_config: Optional[str] = None,
         audit_log_file: Optional[str] = None
     ) -> None:
-        self.plugin_manager = PluginManager(local_plugin_dirs)
+        self.plugin_manager = PluginManager(local_plugin_dirs, external_plugin_config)
         self.audit_logger = AuditLogger(audit_log_file)
         self.config_manager = ConfigManager()
         self.pipeline = Pipeline(self.plugin_manager, self.audit_logger, self.config_manager)
@@ -44,6 +45,31 @@ class ETLEngine:
     def list_plugins(self, plugin_type: Optional[str] = None) -> Dict[str, List[Dict[str, Any]]]:
         """List all available plugins."""
         return self.plugin_manager.list_plugins(plugin_type)
+    
+    def list_external_plugins(self) -> Dict[str, List[Dict[str, Any]]]:
+        """List all configured external plugins."""
+        return self.plugin_manager.list_external_plugins()
+    
+    def add_external_plugin_config(self, plugin_name: str, plugin_config: Dict[str, Any]) -> None:
+        """Add external plugin configuration."""
+        self.plugin_manager.add_external_plugin_config(plugin_name, plugin_config)
+    
+    def remove_external_plugin_config(self, plugin_name: str) -> None:
+        """Remove external plugin configuration."""
+        self.plugin_manager.remove_external_plugin_config(plugin_name)
+    
+    def get_external_plugin_info(self, plugin_name: str) -> Optional[Dict[str, Any]]:
+        """Get information about an external plugin."""
+        return self.plugin_manager.get_external_plugin_info(plugin_name)
+    
+    def install_external_plugin(self, plugin_name: str, package_name: Optional[str] = None,
+                               source: Optional[str] = None, upgrade: bool = False) -> bool:
+        """Install an external plugin package."""
+        return self.plugin_manager.install_external_plugin(plugin_name, package_name, source, upgrade)
+    
+    def uninstall_external_plugin(self, plugin_name: str, package_name: Optional[str] = None) -> bool:
+        """Uninstall an external plugin package."""
+        return self.plugin_manager.uninstall_external_plugin(plugin_name, package_name)
     
     def get_pipeline_history(self, pipeline_id: str) -> List[Dict[str, Any]]:
         """Get execution history for a pipeline."""
