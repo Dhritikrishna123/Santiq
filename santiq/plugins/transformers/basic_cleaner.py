@@ -1,4 +1,9 @@
-"""basic data cleaning transformer"""
+"""Basic data cleaning transformer plugin for Santiq.
+
+This plugin provides fundamental data cleaning operations including null value
+handling, duplicate removal, and data type conversions. It's designed to be
+a starting point for data quality improvement workflows.
+"""
 
 from typing import Any, Dict, List
 
@@ -8,14 +13,54 @@ from santiq.plugins.base.transformer import TransformerPlugin, TransformResult
 
 
 class BasicCleaner(TransformerPlugin):
-    """Perform basic data cleaning operations"""
+    """Basic data cleaning transformer for Santiq.
+    
+    Performs fundamental data cleaning operations including null value removal,
+    duplicate row elimination, and data type conversions. This transformer
+    is designed to handle common data quality issues encountered in ETL workflows.
+    
+    Configuration Parameters:
+        drop_nulls (bool|list): Whether to drop null values
+            - True: Drop rows with nulls in any column
+            - List: Drop rows with nulls in specific columns
+        drop_duplicates (bool): Whether to remove duplicate rows
+        duplicate_subset (list): Columns to consider for duplicate detection
+        convert_types (dict): Type conversions for specific columns
+            - "numeric": Convert to numeric (handles errors gracefully)
+            - "datetime": Convert to datetime (handles errors gracefully)
+            - "category": Convert to categorical type
+            
+    Example Configuration:
+        {
+            "drop_nulls": ["customer_id", "email"],
+            "drop_duplicates": True,
+            "duplicate_subset": ["customer_id"],
+            "convert_types": {
+                "age": "numeric",
+                "signup_date": "datetime",
+                "category": "category"
+            }
+        }
+    """
+    
     __plugin_name__ = "Basic Cleaner"
     __version__ = "0.1.0"
     __description__ = "Basic data cleaning: drop nulls, remove duplicates, type conversions"
     __api_version__ = "1.0"
     
     def transform(self, data: pd.DataFrame) -> TransformResult:
-        """Apply basic cleaning transformations"""
+        """Apply basic cleaning transformations to the data.
+        
+        Processes the input DataFrame according to the configured cleaning
+        operations and returns the cleaned data along with a record of
+        applied fixes.
+        
+        Args:
+            data: Input DataFrame to clean
+            
+        Returns:
+            TransformResult containing cleaned data and applied fixes
+        """
         cleaned_data = data.copy()
         applied_fixes = []
         
@@ -77,11 +122,29 @@ class BasicCleaner(TransformerPlugin):
         return TransformResult(cleaned_data, applied_fixes)
     
     def can_handle_issue(self, issue_type: str) -> bool:
-        """Check if this transformer can handle specific issue types."""
+        """Check if this transformer can handle specific issue types.
+        
+        Args:
+            issue_type: Type of data quality issue
+            
+        Returns:
+            True if the transformer can handle the issue type
+        """
         return issue_type in ["null_values", "duplicate_rows", "type_mismatch"]
     
     def suggest_fixes(self, data: pd.DataFrame, issues: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Suggest fixes for detected issues."""
+        """Suggest fixes for detected issues.
+        
+        Analyzes the detected issues and provides configuration suggestions
+        for the BasicCleaner transformer to resolve them.
+        
+        Args:
+            data: DataFrame containing the data
+            issues: List of detected data quality issues
+            
+        Returns:
+            List of fix suggestions with configuration details
+        """
         suggestions = []
         
         for issue in issues:
