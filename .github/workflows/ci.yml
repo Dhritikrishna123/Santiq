@@ -95,20 +95,23 @@ jobs:
         brew install libffi
     
     - name: Install Python dependencies
+      shell: bash
       run: |
         python -m pip install --upgrade pip setuptools wheel
         pip install -e ".[dev]"
         pip install types-PyYAML
     
     - name: Verify installation
+      shell: bash
       run: |
         python -c "import santiq; print('Santiq imported successfully')"
         python -c "from santiq.core.plugin_manager import PluginManager; print('Plugin manager imported successfully')"
     
     - name: Run unit tests
+      shell: bash
       run: |
         echo "Running tests on ${{ runner.os }} with Python ${{ matrix.python-version }}"
-        echo "Current directory: $(pwd)"
+        echo "Current directory: $PWD"
         echo "Python version: $(python --version)"
         echo "Pip version: $(pip --version)"
         
@@ -117,10 +120,11 @@ jobs:
         
         # Run tests with more verbose output
         pytest tests/test_core/ -v --tb=short --cov=santiq --cov-report=xml --cov-report=term-missing --cov-fail-under=35
-      
-          - name: Run all tests
-        run: |
-          pytest tests/ -v --tb=short || echo "All tests completed"
+    
+    - name: Run all tests
+      shell: bash
+      run: |
+        pytest tests/ -v --tb=short || echo "All tests completed"
       
     - name: Upload coverage to Codecov
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == env.PYTHON_DEFAULT_VERSION
@@ -148,6 +152,7 @@ jobs:
         pip install -e ".[dev]"
     
     - name: Test plugin discovery
+      shell: bash
       run: |
         python -c "
         from santiq.core.plugin_manager import PluginManager
@@ -162,6 +167,7 @@ jobs:
         "
     
     - name: Test plugin loading
+      shell: bash
       run: |
         python -c "
         from santiq.core.plugin_manager import PluginManager
@@ -177,6 +183,7 @@ jobs:
         "
     
     - name: Test external plugin management
+      shell: bash
       run: |
         pytest tests/test_core/test_external_plugin_management.py -v || echo "External plugin management tests not found"
 
@@ -198,11 +205,13 @@ jobs:
         pip install -e .
     
     - name: Verify CLI installation
+      shell: bash
       run: |
         python -m santiq.cli.main --help
         python -m santiq.cli.main plugin list
     
     - name: Test basic pipeline execution
+      shell: bash
       run: |
         # Create a simple test pipeline
         cat > test_pipeline.yml << 'EOF'
