@@ -52,8 +52,8 @@ jobs:
     
     - name: Test CLI installation
       run: |
-        python -m santiq.cli.main --version
-        python -m santiq.cli.main --help
+        python -m santiq --version
+        python -m santiq --help
 
   # Build and publish
   release:
@@ -78,6 +78,7 @@ jobs:
     - name: Check package contents
       run: |
         tar -tzf dist/*.tar.gz | head -20
+        ls -la dist/
         echo "Package contents verified"
     
     - name: Publish to PyPI

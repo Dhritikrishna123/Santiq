@@ -10,7 +10,7 @@
 
 **A lightweight, modular, plugin-first ETL platform designed for individuals, small businesses, and scalable up to enterprise workloads.**
 
-[Quick Start](#quick-start) • [Documentation](https://santiq.readthedocs.io/) • [Examples](examples/) • [Contributing](CONTRIBUTING.md)
+[Quick Start](#quick-start) • [Examples](examples/) • [Contributing](CONTRIBUTING.md)
 
 </div>
 
@@ -98,7 +98,6 @@ loaders:
 ### For Developers
 - **[Plugin Development Guide](docs/plugin-development.md)** - Create custom plugins
 - **[API Reference](docs/api-reference.md)** - Core API documentation
-- **[Plugin Examples](docs/plugin-examples.md)** - Sample plugin implementations
 
 ### For Administrators
 - **[Installation Guide](docs/installation.md)** - Production deployment

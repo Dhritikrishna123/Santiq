@@ -88,7 +88,7 @@ pytest tests/test_core/test_engine.py
 
 ## Plugin Development
 
-See [docs/plugin_development.md](docs/plugin_development.md) for detailed plugin development guidelines.
+See [Plugin Development Guide](docs/plugin-development.md) for detailed plugin development guidelines.
 
 ## Reporting Issues
 

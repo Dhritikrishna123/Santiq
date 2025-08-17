@@ -194,8 +194,8 @@ class TestExternalPluginDiscovery:
             "installed_transformer", plugin_config
         )
 
-        # Mock package installation check
-        with patch.object(plugin_manager, "_is_package_installed") as mock_installed:
+        # Mock package installation check on the external manager
+        with patch.object(plugin_manager.external_manager, "_is_package_installed") as mock_installed:
             mock_installed.return_value = True
 
             external_plugins = plugin_manager.list_external_plugins()

@@ -258,9 +258,31 @@ class PluginManager:
         return self.external_manager.get_external_plugin_info(plugin_name)
 
     def list_external_plugins(self) -> Dict[str, List[Dict[str, Any]]]:
-        """List all configured external plugins.
+        """List all external plugins from configuration.
 
         Returns:
             Dictionary mapping plugin types to lists of external plugin information
         """
         return self.external_manager.list_external_plugins()
+
+    def _is_package_installed(self, package_name: str) -> bool:
+        """Check if a package is installed.
+
+        Args:
+            package_name: Name of the package to check
+
+        Returns:
+            True if package is installed, False otherwise
+        """
+        return self.external_manager._is_package_installed(package_name)
+
+    def _validate_api_version(self, plugin_info: Dict[str, Any]) -> None:
+        """Validate plugin API version compatibility.
+
+        Args:
+            plugin_info: Plugin information dictionary
+
+        Raises:
+            PluginVersionError: If API version is incompatible
+        """
+        self.lifecycle_manager._validate_api_version(plugin_info)
