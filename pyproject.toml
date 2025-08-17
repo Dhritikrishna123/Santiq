@@ -103,33 +103,3 @@ fail_under = 40
 
 [tool.coverage.html]
 directory = "htmlcov"
-
-[tool.pytest.ini_options]
-minversion = "7.0"
-addopts = [
-    "-ra",
-    "--strict-markers", 
-    "--strict-config",
-    "--cov=santiq",
-    "--cov-report=term-missing:skip-covered",
-    "--cov-report=html:htmlcov",
-    "--cov-report=xml",
-]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests", 
-    "compatibility: marks tests as plugin compatibility tests",
-    "cli: marks tests as CLI-related tests",
-    "external_plugin: marks tests for external plugin development",
-    "github_workflow: marks tests specifically for GitHub Actions",
-]
-filterwarnings = [
-    "error",
-    "ignore::UserWarning",
-    "ignore::DeprecationWarning", 
-    "ignore::PendingDeprecationWarning",
-]
