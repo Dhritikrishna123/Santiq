@@ -239,8 +239,16 @@ jobs:
       run: |
         # Check if all documentation files exist
         test -f README.md
-        test -f docs/external_plugin_development_guide.md
-        test -f docs/external_plugin_guide.md
+        test -f docs/README.md
+        test -f docs/getting-started.md
+        test -f docs/user-guide.md
+        test -f docs/configuration.md
+        test -f docs/cli-reference.md
+        test -f docs/plugin-development.md
+        test -f docs/api-reference.md
+        test -f docs/installation.md
+        test -f docs/monitoring.md
+        test -f examples/basic_pipeline.yml
         test -f examples/external_plugins_example.yml
         
         echo "✓ All documentation files present"
