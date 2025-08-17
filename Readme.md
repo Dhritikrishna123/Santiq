@@ -1,9 +1,31 @@
 
 # Santiq
 
-A lightweight, modular, plugin-first ETL platform designed for individuals, small businesses, and scalable up to enterprise workloads.
+<div align="center">
 
-## Features
+![Santiq Logo](https://img.shields.io/badge/Santiq-ETL%20Platform-blue?style=for-the-badge&logo=python)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PyPI version](https://badge.fury.io/py/santiq.svg)](https://badge.fury.io/py/santiq)
+
+**A lightweight, modular, plugin-first ETL platform designed for individuals, small businesses, and scalable up to enterprise workloads.**
+
+[Quick Start](#quick-start) • [Documentation](https://santiq.readthedocs.io/) • [Examples](examples/) • [Contributing](CONTRIBUTING.md)
+
+</div>
+
+---
+
+## 🚀 What is Santiq?
+
+Santiq is a modern ETL (Extract, Transform, Load) platform that makes data processing simple, reliable, and extensible. Built with a plugin-first architecture, Santiq allows you to:
+
+- **Extract** data from any source (files, databases, APIs, cloud services)
+- **Profile** data to automatically detect quality issues
+- **Transform** data with intelligent cleaning and validation
+- **Load** data to any destination with full audit trails
+
+### ✨ Key Features
 
 - 🔌 **Plugin-First Architecture**: Everything is a plugin, even core functionality
 - 🧠 **Smart Data Profiling**: Automatic issue detection with context-aware fix suggestions
@@ -11,8 +33,9 @@ A lightweight, modular, plugin-first ETL platform designed for individuals, smal
 - 📊 **Learning System**: Remembers your preferences for future pipeline runs
 - 🛡️ **Enterprise Ready**: Comprehensive audit logging and error handling
 - 🚀 **Performance Optimized**: Hybrid memory/disk usage based on data size
+- 🔧 **Extensible**: Easy to create custom plugins for any data source or transformation
 
-## Quick Start
+## 🏃‍♂️ Quick Start
 
 ### Installation
 
@@ -20,26 +43,24 @@ A lightweight, modular, plugin-first ETL platform designed for individuals, smal
 pip install santiq
 ```
 
-### Create Your First Pipeline
+### Your First Pipeline
 
 ```bash
 # Initialize a new pipeline
-santiq init my-pipeline
+santiq init my-first-pipeline
 
-# Edit my-pipeline.yml to configure your data sources
-# Set environment variables
-export INPUT_PATH=/path/to/your/data
-export OUTPUT_PATH=/path/to/output
+# Edit the generated configuration file
+# my-first-pipeline.yml
 
 # Run the pipeline
-santiq run pipeline my-pipeline.yml --mode half-auto
+santiq run pipeline my-first-pipeline.yml
 ```
 
 ### Example Pipeline Configuration
 
 ```yaml
-name: "Data Cleaning Pipeline"
-description: "Clean customer data and export to CSV"
+name: "Customer Data Cleaning"
+description: "Clean and validate customer data from CSV"
 
 extractor:
   plugin: csv_extractor
@@ -49,6 +70,7 @@ extractor:
 
 profilers:
   - plugin: basic_profiler
+    params: {}
 
 transformers:
   - plugin: basic_cleaner
@@ -65,51 +87,67 @@ loaders:
       path: "${OUTPUT_PATH}/cleaned_customers.csv"
 ```
 
-## Execution Modes
+## 📚 Documentation
 
-- **Manual**: Review and manually apply each suggested fix
-- **Half-Auto**: Bulk approve/reject suggestions, preferences saved for future runs
-- **Controlled-Auto**: Automatically apply previously approved fix types
+### For Users
+- **[Getting Started Guide](docs/getting-started.md)** - Complete beginner's guide
+- **[User Guide](docs/user-guide.md)** - Comprehensive usage instructions
+- **[Configuration Reference](docs/configuration.md)** - Pipeline configuration options
+- **[CLI Reference](docs/cli-reference.md)** - Command-line interface documentation
 
-## Plugin Management
+### For Developers
+- **[Plugin Development Guide](docs/plugin-development.md)** - Create custom plugins
+- **[API Reference](docs/api-reference.md)** - Core API documentation
+- **[Plugin Examples](docs/plugin-examples.md)** - Sample plugin implementations
 
+### For Administrators
+- **[Installation Guide](docs/installation.md)** - Production deployment
+- **[Configuration Management](docs/configuration-management.md)** - Environment setup
+- **[Monitoring & Logging](docs/monitoring.md)** - Audit trails and observability
+
+## 🔌 Plugin Ecosystem
+
+Santiq comes with built-in plugins and supports a growing ecosystem:
+
+### Built-in Plugins
+- **Extractors**: CSV, JSON, Excel files
+- **Profilers**: Basic data quality analysis
+- **Transformers**: Data cleaning, validation, type conversion
+- **Loaders**: CSV, JSON, database outputs
+
+### Community Plugins
 ```bash
-# List available plugins
-santiq plugin list
-
-# Install additional plugins
+# Install community plugins
 santiq plugin install santiq-plugin-postgres
-santiq plugin install santiq-plugin-advanced-cleaner
+santiq plugin install santiq-plugin-elasticsearch
 
-# Remove plugins
-santiq plugin remove santiq-plugin-csv
+# List available plugins
+santiq plugin list --available
 ```
 
-## Development
+## 🎯 Use Cases
 
-### Setting Up Development Environment
-
+### Data Quality Assurance
 ```bash
-git clone https://github.com/yourusername/santiq.git
-cd santiq
-pip install -e ".[dev]"
-pre-commit install
+# Profile data and get quality report
+santiq run pipeline data-quality.yml --mode manual
 ```
 
-### Running Tests
-
+### Automated Data Processing
 ```bash
-pytest
-pytest --cov=santiq tests/  # With coverage
+# Run with automatic fix application
+santiq run pipeline production.yml --mode controlled-auto
 ```
 
-### Creating a Plugin
-
-See [Plugin Development Guide](docs/plugin_development.md) for detailed instructions.
-
-## Architecture
-
+### Data Migration
 ```bash
+# Migrate data between systems
+santiq run pipeline migration.yml --mode half-auto
+```
+
+## 🏗️ Architecture
+
+```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
 │   Extractors    │    │    Profilers     │    │  Transformers   │
 │  ┌───────────┐  │    │  ┌────────────┐  │    │  ┌───────────┐  │
@@ -140,27 +178,56 @@ See [Plugin Development Guide](docs/plugin_development.md) for detailed instruct
                     └─────────────────────────┘
 ```
 
-## Contributing
+## 🛠️ Development
+
+### Setting Up Development Environment
+
+```bash
+git clone https://github.com/yourusername/santiq.git
+cd santiq
+pip install -e ".[dev]"
+pre-commit install
+```
+
+### Running Tests
+
+```bash
+pytest
+pytest --cov=santiq tests/  # With coverage
+```
+
+### Creating a Plugin
+
+See [Plugin Development Guide](docs/plugin-development.md) for detailed instructions.
+
+## 🤝 Contributing
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## Documentation
+### Ways to Contribute
+- 🐛 **Report Bugs**: Create detailed issue reports
+- 💡 **Suggest Features**: Propose new functionality
+- 🔧 **Submit Code**: Fix bugs or add features
+- 📚 **Improve Docs**: Help make documentation better
+- 🔌 **Create Plugins**: Build plugins for new data sources
 
-### 📚 User Documentation
-- **[User Guide](docs/user_guide.md)** - Comprehensive guide for using Santiq
-- **[Quick Reference](docs/quick_reference.md)** - Quick commands and configuration reference
+## 📄 License
 
-### 🔌 Plugin Development
-- **[Plugin Development Guide](docs/plugin_development.md)** - Create custom plugins for Santiq
-- **[External Plugin Guide](docs/external_plugin_guide.md)** - Manage external plugin configurations
-- **[External Plugin Development Guide](docs/external_plugin_development_guide.md)** - Develop and distribute external plugins
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-### 🚀 Getting Started
-1. **Install**: `pip install santiq`
-2. **Quick Start**: See [User Guide](docs/user_guide.md#getting-started)
-3. **First Pipeline**: `santiq init my-pipeline`
-4. **Run**: `santiq run pipeline my-pipeline.yml`
+## 🙏 Acknowledgments
 
-## License
+- Built with [Pandas](https://pandas.pydata.org/) for data manipulation
+- Powered by [Typer](https://typer.tiangolo.com/) for CLI
+- Styled with [Rich](https://rich.readthedocs.io/) for beautiful output
+- Validated with [Pydantic](https://pydantic-docs.helpmanual.io/) for data validation
 
-MIT License - see [LICENSE](LICENSE) file for details.
+---
+
+<div align="center">
+
+**Made with ❤️ by the Santiq Community**
+
+[GitHub](https://github.com/yourusername/santiq) • [Issues](https://github.com/yourusername/santiq/issues) • [Discussions](https://github.com/yourusername/santiq/discussions)
+
+</div>
