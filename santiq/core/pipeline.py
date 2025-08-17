@@ -268,7 +268,11 @@ class Pipeline:
 
                 # Get suggestions if in interactive mode
                 if mode in ["manual", "half-auto"]:
-                    suggestions = transformer.suggest_fixes(
+                    # Type assertion since we know this is a transformer plugin
+                    from santiq.plugins.base.transformer import TransformerPlugin
+
+                    transformer_plugin = transformer  # type: ignore[assignment]
+                    suggestions = transformer_plugin.suggest_fixes(  # type: ignore[union-attr]
                         current_data, self._get_relevant_issues(context.profile_results)
                     )
                     if mode == "manual":

@@ -170,14 +170,28 @@ def _show_available_plugins(plugin_type: Optional[str] = None) -> None:
         categories = info["category"]
 
         # Filter by plugin type if specified
-        if plugin_type and plugin_type not in categories:
-            continue
+        if plugin_type:
+            # Handle both string and list categories
+            if isinstance(categories, str):
+                if plugin_type != categories:
+                    continue
+            elif isinstance(categories, (list, tuple)):
+                if plugin_type not in categories:
+                    continue
+            else:
+                continue  # Skip if category is neither string nor list
 
         status = (
             "[blue]Official[/blue]" if info["official"] else "[cyan]Community[/cyan]"
         )
 
-        table.add_row(name, info["package"], categories, status, info["description"])
+        table.add_row(
+            name,
+            str(info["package"]),
+            str(categories),
+            status,
+            str(info["description"]),
+        )
 
     console.print(table)
     console.print(
@@ -205,7 +219,7 @@ def install_plugin(
     # Check if it's a known plugin name from registry
     package_name = plugin_name
     if plugin_name in OFFICIAL_PLUGIN_REGISTRY:
-        package_name = OFFICIAL_PLUGIN_REGISTRY[plugin_name]["package"]
+        package_name = str(OFFICIAL_PLUGIN_REGISTRY[plugin_name]["package"])
         console.print(
             f"[blue]Installing official plugin:[/blue] {plugin_name} ({package_name})"
         )
@@ -253,7 +267,7 @@ def install_plugin(
         # Show plugin info after installation
         if plugin_name in OFFICIAL_PLUGIN_REGISTRY:
             console.print(
-                f"[blue]Description:[/blue] {OFFICIAL_PLUGIN_REGISTRY[plugin_name]['description']}"
+                f"[blue]Description:[/blue] {str(OFFICIAL_PLUGIN_REGISTRY[plugin_name]['description'])}"
             )
 
         # Verify installation by trying to discover the plugin
@@ -303,7 +317,7 @@ def uninstall_plugin(
     # Resolve plugin name to package name
     package_name = plugin_name
     if plugin_name in OFFICIAL_PLUGIN_REGISTRY:
-        package_name = OFFICIAL_PLUGIN_REGISTRY[plugin_name]["package"]
+        package_name = str(OFFICIAL_PLUGIN_REGISTRY[plugin_name]["package"])
 
     if not yes and not dry_run:
         confirm = typer.confirm(f"Uninstall plugin '{plugin_name}' ({package_name})?")
@@ -357,8 +371,16 @@ def search_plugins(
             continue
 
         # Filter by plugin type
-        if plugin_type and plugin_type not in info["category"]:
-            continue
+        if plugin_type:
+            category = info["category"]
+            if isinstance(category, str):
+                if plugin_type != category:
+                    continue
+            elif isinstance(category, (list, tuple)):
+                if plugin_type not in category:
+                    continue
+            else:
+                continue  # Skip if category is neither string nor list
 
         # Search in name, description, and package name
         search_text = f"{name} {info['description']} {info['package']}".lower()
@@ -384,7 +406,11 @@ def search_plugins(
             "[blue]Official[/blue]" if info["official"] else "[cyan]Community[/cyan]"
         )
         table.add_row(
-            name, info["package"], info["category"], status, info["description"]
+            name,
+            str(info["package"]),
+            str(info["category"]),
+            status,
+            str(info["description"]),
         )
 
     console.print(table)
@@ -490,7 +516,7 @@ def update_plugins(
         # Update specific plugin
         package_name = plugin_name
         if plugin_name in OFFICIAL_PLUGIN_REGISTRY:
-            package_name = OFFICIAL_PLUGIN_REGISTRY[plugin_name]["package"]
+            package_name = str(OFFICIAL_PLUGIN_REGISTRY[plugin_name]["package"])
 
         _update_single_plugin(package_name, dry_run, pre)
     else:

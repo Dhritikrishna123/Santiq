@@ -21,7 +21,7 @@ class DataManager:
 
     def should_use_disk(self, data: pd.DataFrame) -> bool:
         """Determine if data should be stored on disk vs memory."""
-        memory_usage_mb = data.memory_usage(deep=True).sum() / 1024 / 1024
+        memory_usage_mb = float(data.memory_usage(deep=True).sum()) / 1024 / 1024
         return memory_usage_mb > self.memory_threshold_mb
 
     def save_temp_data(self, data: pd.DataFrame, name: str) -> Path:

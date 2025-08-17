@@ -607,8 +607,10 @@ class PluginManager:
                 self._validate_api_version(plugin_info)
 
                 plugin_class = plugin_info["class"]
-                self._loaded_plugins[plugin_type][plugin_name] = plugin_class
-                return plugin_class
+                # Type cast to ensure proper typing
+                typed_plugin_class: PluginClass = plugin_class
+                self._loaded_plugins[plugin_type][plugin_name] = typed_plugin_class
+                return typed_plugin_class
 
         raise PluginNotFoundError(plugin_name, plugin_type)
 

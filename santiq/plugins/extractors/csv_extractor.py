@@ -67,14 +67,16 @@ class CSVExtractor(ExtractorPlugin):
             Exception: If CSV reading fails (with detailed error message)
         """
         path = self.config.get("path")
+        if not path:
+            raise Exception("CSV extractor requires 'path' parameter in configuration")
 
         # Validate that the file exists and is readable
         import os
 
-        if not os.path.exists(path):
+        if not os.path.exists(str(path)):
             raise Exception(f"Failed to read CSV file '{path}': File not found")
 
-        if not os.access(path, os.R_OK):
+        if not os.access(str(path), os.R_OK):
             raise Exception(f"Failed to read CSV file '{path}': File not readable")
 
         # Extract pandas read_csv parameters
@@ -89,7 +91,7 @@ class CSVExtractor(ExtractorPlugin):
         pandas_params.setdefault("low_memory", False)  # Better for large files
 
         try:
-            data = pd.read_csv(path, **pandas_params)
+            data = pd.read_csv(str(path), **pandas_params)
             return data
         except UnicodeDecodeError as e:
             # Provide helpful error message for encoding issues
@@ -164,8 +166,14 @@ class CSVExtractor(ExtractorPlugin):
                 - estimated_rows: Estimated number of rows (None if cannot determine)
         """
         try:
+            path = self.config.get("path")
+            if not path:
+                raise Exception(
+                    "CSV extractor requires 'path' parameter in configuration"
+                )
+
             # Read first few rows to get schema info
-            sample = pd.read_csv(self.config["path"], nrows=5)
+            sample = pd.read_csv(str(path), nrows=5)
 
             # Try to get row count for small files
             estimated_rows = None
@@ -173,7 +181,7 @@ class CSVExtractor(ExtractorPlugin):
                 # Count lines in file (rough estimate)
                 import os
 
-                with open(self.config["path"], "r", encoding="utf-8") as f:
+                with open(str(path), "r", encoding="utf-8") as f:
                     line_count = sum(1 for _ in f)
                 # Subtract header if present
                 header_rows = 1 if self.config.get("header", 0) is not None else 0
