@@ -18,12 +18,12 @@ from santiq.plugins.base.transformer import TransformerPlugin, TransformResult
 
 class TestExternalPluginTemplate:
     """Test template for external plugin developers."""
-    
+
     def create_test_plugin_directory(self, temp_dir: Path, plugin_type: str) -> Path:
         """Create a complete plugin directory structure for testing."""
         plugin_dir = temp_dir / f"test_{plugin_type}_plugin"
         plugin_dir.mkdir()
-        
+
         # Create plugin manifest
         manifest = {
             "name": f"test_{plugin_type}",
@@ -31,24 +31,29 @@ class TestExternalPluginTemplate:
             "version": "1.0.0",
             "api_version": "1.0",
             "description": f"Test {plugin_type} plugin for external development",
-            "entry_point": "plugin:TestTransformerPlugin" if plugin_type == "transformer" else f"plugin:Test{plugin_type.title()}Plugin",
+            "entry_point": (
+                "plugin:TestTransformerPlugin"
+                if plugin_type == "transformer"
+                else f"plugin:Test{plugin_type.title()}Plugin"
+            ),
             "author": "Test Developer",
             "license": "MIT",
-            "requirements": ["pandas>=2.0.0"]
+            "requirements": ["pandas>=2.0.0"],
         }
-        
+
         import yaml
-        with open(plugin_dir / "plugin.yml", 'w') as f:
+
+        with open(plugin_dir / "plugin.yml", "w") as f:
             yaml.dump(manifest, f)
-        
+
         return plugin_dir
-    
+
     def test_external_extractor_plugin_template(self):
         """Test template for external extractor plugin development."""
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             plugin_dir = self.create_test_plugin_directory(temp_path, "extractor")
-            
+
             # Create extractor plugin code
             plugin_code = '''
 import pandas as pd
@@ -134,41 +139,45 @@ class TestExtractorPlugin(ExtractorPlugin):
         # In real plugin, close connections, files, etc.
         super().teardown()
 '''
-            
+
             plugin_file = plugin_dir / "plugin.py"
             plugin_file.write_text(plugin_code)
-            
+
             # Test plugin loading and functionality
             plugin_manager = PluginManager(local_plugin_dirs=[str(temp_path)])
             plugins = plugin_manager.discover_plugins()
-            
+
             # Verify plugin was discovered
-            extractors = [p for p in plugins["extractor"] if p["name"] == "test_extractor"]
+            extractors = [
+                p for p in plugins["extractor"] if p["name"] == "test_extractor"
+            ]
             assert len(extractors) == 1
-            
+
             # Test plugin instantiation and execution
             config = {"data_source": "test_db", "format": "json"}
-            instance = plugin_manager.create_plugin_instance("test_extractor", "extractor", config)
-            
+            instance = plugin_manager.create_plugin_instance(
+                "test_extractor", "extractor", config
+            )
+
             # Test extraction
             data = instance.extract()
             assert len(data) == 3
             assert list(data.columns) == ["id", "name", "source", "format"]
             assert all(data["source"] == "test_db")
             assert all(data["format"] == "json")
-            
+
             # Test schema info
             schema_info = instance.get_schema_info()
             assert "columns" in schema_info
             assert len(schema_info["columns"]) == 4
-    
+
     def test_external_transformer_plugin_template(self):
         """Test template for external transformer plugin development."""
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_path = Path(temp_dir)
             plugin_dir = temp_path / "test_transformer_plugin"
             plugin_dir.mkdir()
-            
+
             # Create plugin manifest
             manifest = {
                 "name": "test_transformer_unique",
@@ -179,13 +188,14 @@ class TestExtractorPlugin(ExtractorPlugin):
                 "entry_point": "plugin:TestTransformerPlugin",
                 "author": "Test Developer",
                 "license": "MIT",
-                "requirements": ["pandas>=2.0.0"]
+                "requirements": ["pandas>=2.0.0"],
             }
-            
+
             import yaml
-            with open(plugin_dir / "plugin.yml", 'w') as f:
+
+            with open(plugin_dir / "plugin.yml", "w") as f:
                 yaml.dump(manifest, f)
-            
+
             # Create transformer plugin code
             plugin_code = '''import pandas as pd
 from typing import Any, Dict, List
@@ -274,144 +284,184 @@ class TestTransformerPlugin(TransformerPlugin):
                 })
         
         return suggestions'''
-            
+
             plugin_file = plugin_dir / "plugin.py"
             plugin_file.write_text(plugin_code)
-            
+
             # Create __init__.py to make it a proper Python package
             init_file = plugin_dir / "__init__.py"
             init_file.write_text("")
-            
+
             # Test plugin loading and functionality
             plugin_manager = PluginManager(local_plugin_dirs=[str(temp_path)])
-            
+
             config = {"standardize_names": True, "validate_emails": True}
-            instance = plugin_manager.create_plugin_instance("test_transformer_unique", "transformer", config)
-            
+            instance = plugin_manager.create_plugin_instance(
+                "test_transformer_unique", "transformer", config
+            )
+
             # Test transformation
-            test_data = pd.DataFrame({
-                "name": ["john doe", "JANE SMITH", "bob jones"],
-                "email": ["john@test.com", "invalid-email", "jane@example.org"]
-            })
-            
+            test_data = pd.DataFrame(
+                {
+                    "name": ["john doe", "JANE SMITH", "bob jones"],
+                    "email": ["john@test.com", "invalid-email", "jane@example.org"],
+                }
+            )
+
             result = instance.transform(test_data)
-            
+
             assert isinstance(result, TransformResult)
-            assert len(result.applied_fixes) >= 1  # Should have applied name standardization
-            
+            assert (
+                len(result.applied_fixes) >= 1
+            )  # Should have applied name standardization
+
             # Check that names were standardized
             assert all(name.istitle() for name in result.data["name"])
-    
+
     def test_plugin_compatibility_checker(self):
         """Test utility for checking plugin compatibility."""
+
         def check_plugin_compatibility(plugin_class) -> Dict[str, Any]:
             """Utility function to check if a plugin follows the correct interface."""
-            compatibility_report = {
-                "compatible": True,
-                "issues": [],
-                "warnings": []
-            }
-            
+            compatibility_report = {"compatible": True, "issues": [], "warnings": []}
+
             # Check if plugin has required attributes
             required_attrs = ["__plugin_name__", "__api_version__", "__description__"]
             for attr in required_attrs:
                 if not hasattr(plugin_class, attr):
-                    compatibility_report["issues"].append(f"Missing required attribute: {attr}")
+                    compatibility_report["issues"].append(
+                        f"Missing required attribute: {attr}"
+                    )
                     compatibility_report["compatible"] = False
-            
+
             # Check API version format
             if hasattr(plugin_class, "__api_version__"):
                 try:
                     version_parts = plugin_class.__api_version__.split(".")
-                    if len(version_parts) != 2 or not all(part.isdigit() for part in version_parts):
-                        compatibility_report["issues"].append("API version should be in format 'major.minor' (e.g., '1.0')")
+                    if len(version_parts) != 2 or not all(
+                        part.isdigit() for part in version_parts
+                    ):
+                        compatibility_report["issues"].append(
+                            "API version should be in format 'major.minor' (e.g., '1.0')"
+                        )
                         compatibility_report["compatible"] = False
                 except:
                     compatibility_report["issues"].append("Invalid API version format")
                     compatibility_report["compatible"] = False
-            
+
             # Check inheritance
             if issubclass(plugin_class, ExtractorPlugin):
-                if not hasattr(plugin_class, "extract") or not callable(getattr(plugin_class, "extract")):
-                    compatibility_report["issues"].append("Extractor plugin must implement extract() method")
+                if not hasattr(plugin_class, "extract") or not callable(
+                    getattr(plugin_class, "extract")
+                ):
+                    compatibility_report["issues"].append(
+                        "Extractor plugin must implement extract() method"
+                    )
                     compatibility_report["compatible"] = False
             elif issubclass(plugin_class, TransformerPlugin):
-                if not hasattr(plugin_class, "transform") or not callable(getattr(plugin_class, "transform")):
-                    compatibility_report["issues"].append("Transformer plugin must implement transform() method")
+                if not hasattr(plugin_class, "transform") or not callable(
+                    getattr(plugin_class, "transform")
+                ):
+                    compatibility_report["issues"].append(
+                        "Transformer plugin must implement transform() method"
+                    )
                     compatibility_report["compatible"] = False
             elif issubclass(plugin_class, ProfilerPlugin):
-                if not hasattr(plugin_class, "profile") or not callable(getattr(plugin_class, "profile")):
-                    compatibility_report["issues"].append("Profiler plugin must implement profile() method")
+                if not hasattr(plugin_class, "profile") or not callable(
+                    getattr(plugin_class, "profile")
+                ):
+                    compatibility_report["issues"].append(
+                        "Profiler plugin must implement profile() method"
+                    )
                     compatibility_report["compatible"] = False
             elif issubclass(plugin_class, LoaderPlugin):
-                if not hasattr(plugin_class, "load") or not callable(getattr(plugin_class, "load")):
-                    compatibility_report["issues"].append("Loader plugin must implement load() method")
+                if not hasattr(plugin_class, "load") or not callable(
+                    getattr(plugin_class, "load")
+                ):
+                    compatibility_report["issues"].append(
+                        "Loader plugin must implement load() method"
+                    )
                     compatibility_report["compatible"] = False
-            
+
             # Optional recommendations
             if not hasattr(plugin_class, "__version__"):
-                compatibility_report["warnings"].append("Consider adding __version__ attribute")
-            
+                compatibility_report["warnings"].append(
+                    "Consider adding __version__ attribute"
+                )
+
             return compatibility_report
-        
+
         # Test with a compatible plugin
         class GoodPlugin(ExtractorPlugin):
             __plugin_name__ = "Good Plugin"
             __api_version__ = "1.0"
             __description__ = "A well-formed plugin"
             __version__ = "1.0.0"
-            
+
             def extract(self):
                 return pd.DataFrame()
-        
+
         report = check_plugin_compatibility(GoodPlugin)
         assert report["compatible"] is True
         assert len(report["issues"]) == 0
-        
+
         # Test with an incompatible plugin that doesn't inherit from base class
         class BadPlugin:
             # Missing required attributes and doesn't inherit from base class
             pass
-        
+
         report = check_plugin_compatibility(BadPlugin)
         # The BadPlugin should have issues because it doesn't inherit from base class
         # and doesn't have required attributes
         assert not hasattr(BadPlugin, "__plugin_name__")
         assert not hasattr(BadPlugin, "__api_version__")
         assert not hasattr(BadPlugin, "__description__")
-    
+
     def test_plugin_testing_utilities(self):
         """Test utilities that help plugin developers test their plugins."""
+
         def create_test_data_for_plugin_type(plugin_type: str) -> pd.DataFrame:
             """Create appropriate test data for different plugin types."""
             if plugin_type == "extractor":
                 # Not applicable - extractors create data
                 return pd.DataFrame()
-            
+
             elif plugin_type in ["profiler", "transformer"]:
                 # Create data with various issues for testing
-                return pd.DataFrame({
-                    "id": [1, 2, None, 4, 2],  # Null and duplicate
-                    "name": ["Alice", "", None, "Diana", "Alice"],  # Empty and null
-                    "age": [-5, 30, 150, "invalid", 30],  # Invalid values
-                    "email": ["alice@test.com", "invalid", "diana@test.org", "", "alice@test.com"],
-                    "score": [85.5, 92.0, 78.5, None, 85.5],
-                    "duplicate_col": [1, 2, 3, 4, 2]  # This will create duplicates
-                })
-            
+                return pd.DataFrame(
+                    {
+                        "id": [1, 2, None, 4, 2],  # Null and duplicate
+                        "name": ["Alice", "", None, "Diana", "Alice"],  # Empty and null
+                        "age": [-5, 30, 150, "invalid", 30],  # Invalid values
+                        "email": [
+                            "alice@test.com",
+                            "invalid",
+                            "diana@test.org",
+                            "",
+                            "alice@test.com",
+                        ],
+                        "score": [85.5, 92.0, 78.5, None, 85.5],
+                        "duplicate_col": [1, 2, 3, 4, 2],  # This will create duplicates
+                    }
+                )
+
             elif plugin_type == "loader":
                 # Clean data for loading
-                return pd.DataFrame({
-                    "id": [1, 2, 3, 4],
-                    "name": ["Alice", "Bob", "Charlie", "Diana"],
-                    "score": [85.5, 92.0, 78.5, 88.0]
-                })
-            
+                return pd.DataFrame(
+                    {
+                        "id": [1, 2, 3, 4],
+                        "name": ["Alice", "Bob", "Charlie", "Diana"],
+                        "score": [85.5, 92.0, 78.5, 88.0],
+                    }
+                )
+
             return pd.DataFrame()
-        
+
         # Test the utility
         test_data = create_test_data_for_plugin_type("profiler")
         assert len(test_data) > 0
         assert test_data.isnull().sum().sum() > 0  # Has null values
         # Check for duplicates in specific columns that should have them
-        assert test_data["duplicate_col"].duplicated().sum() > 0  # Has duplicates in duplicate_col
+        assert (
+            test_data["duplicate_col"].duplicated().sum() > 0
+        )  # Has duplicates in duplicate_col

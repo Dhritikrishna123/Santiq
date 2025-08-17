@@ -9,10 +9,10 @@ from santiq.cli.commands.run import run_app
 app = typer.Typer(
     name="santiq",
     help="santiq - A lightweight, modular, plugin-first ETL platform",
-    no_args_is_help=True
+    no_args_is_help=True,
 )
 
-console = Console()
+console = Console(force_terminal=True)
 
 # Add subcommands
 app.add_typer(run_app, name="run", help="Run ETL pipelines")
@@ -23,17 +23,18 @@ app.add_typer(plugin_app, name="plugin", help="Manage plugins")
 def version() -> None:
     """Show version information."""
     from santiq import __version__
+
     console.print(f"santiq version {__version__}")
 
 
 @app.command()
 def init(
     name: str = typer.Argument(..., help="Pipeline name"),
-    template: str = typer.Option("basic", help="Template to use")
+    template: str = typer.Option("basic", help="Template to use"),
 ) -> None:
     """Initialize a new pipeline configuration."""
     from pathlib import Path
-    
+
     config_content = f"""name: {name}
 description: "ETL pipeline for {name}"
 
@@ -58,15 +59,19 @@ loaders:
     params:
       path: "${{OUTPUT_PATH}}/output.csv"
 """
-    
+
     config_file = Path(f"{name}.yml")
     if config_file.exists():
-        console.print(f"[red]Error:[/red] Pipeline config '{config_file}' already exists")
+        console.print(
+            f"[red]Error:[/red] Pipeline config '{config_file}' already exists"
+        )
         raise typer.Exit(1)
-    
+
     config_file.write_text(config_content)
     console.print(f"[green]✓[/green] Created pipeline config: {config_file}")
-    console.print(f"[blue]Tip:[/blue] Set INPUT_PATH and OUTPUT_PATH environment variables")
+    console.print(
+        f"[blue]Tip:[/blue] Set INPUT_PATH and OUTPUT_PATH environment variables"
+    )
 
 
 if __name__ == "__main__":

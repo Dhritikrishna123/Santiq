@@ -25,6 +25,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[dev]"
+        pip install markdown-link-check
     
     - name: Check documentation structure
       run: |
@@ -43,14 +44,11 @@ jobs:
     
     - name: Validate markdown links
       run: |
-        # Install markdown link checker
-        pip install markdown-link-check
-        
         # Check main README
-        markdown-link-check README.md || true
+        markdown-link-check README.md || echo "Link check failed for README.md"
         
         # Check docs README
-        markdown-link-check docs/README.md || true
+        markdown-link-check docs/README.md || echo "Link check failed for docs/README.md"
         
         echo "✓ Documentation link validation completed"
     
