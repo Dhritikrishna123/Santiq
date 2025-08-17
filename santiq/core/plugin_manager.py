@@ -97,7 +97,9 @@ class PluginManager:
         """
         # Ensure plugin is loaded first
         self.load_plugin(plugin_name, plugin_type)
-        return self.lifecycle_manager.create_plugin_instance(plugin_name, plugin_type, config)
+        return self.lifecycle_manager.create_plugin_instance(
+            plugin_name, plugin_type, config
+        )
 
     def get_plugin_instance(
         self, plugin_name: str, plugin_type: str
@@ -225,7 +227,9 @@ class PluginManager:
         Returns:
             True if uninstallation successful, False otherwise
         """
-        return self.external_manager.uninstall_external_plugin(plugin_name, package_name)
+        return self.external_manager.uninstall_external_plugin(
+            plugin_name, package_name
+        )
 
     def add_external_plugin_config(
         self, plugin_name: str, plugin_config: Dict[str, Any]

@@ -71,7 +71,9 @@ class EntryPointDiscovery:
             plugin_class = entry_point.load()
 
             # Validate that the plugin inherits from the correct base class
-            PluginValidator.validate_plugin_class(plugin_class, plugin_type, entry_point.name)
+            PluginValidator.validate_plugin_class(
+                plugin_class, plugin_type, entry_point.name
+            )
 
             return {
                 "name": entry_point.name,

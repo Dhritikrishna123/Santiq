@@ -2,8 +2,8 @@
 
 from typing import Any, Dict, List
 
-from santiq.core.stages.base import BaseStage
 from santiq.core.pipeline_context import PipelineContext
+from santiq.core.stages.base import BaseStage
 
 
 class LoadingStage(BaseStage):

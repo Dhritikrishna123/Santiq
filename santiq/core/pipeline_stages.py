@@ -5,15 +5,17 @@ from typing import Any, Dict, List
 import pandas as pd
 
 from santiq.core.audit import AuditLogger
-from santiq.core.plugin_manager import PluginManager
 from santiq.core.pipeline_context import PipelineContext
+from santiq.core.plugin_manager import PluginManager
 from santiq.plugins.base.profiler import ProfileResult
 
 
 class PipelineStages:
     """Handles execution of individual pipeline stages."""
 
-    def __init__(self, plugin_manager: PluginManager, audit_logger: AuditLogger) -> None:
+    def __init__(
+        self, plugin_manager: PluginManager, audit_logger: AuditLogger
+    ) -> None:
         """Initialize pipeline stages.
 
         Args:
@@ -163,7 +165,9 @@ class PipelineStages:
             Transformed data as DataFrame
         """
         current_data = (
-            context.get_data().copy() if context.get_data() is not None else pd.DataFrame()
+            context.get_data().copy()
+            if context.get_data() is not None
+            else pd.DataFrame()
         )
 
         for transformer_config in context.get_config().transformers:
@@ -201,7 +205,8 @@ class PipelineStages:
                 # Get suggestions if in interactive mode
                 if mode in ["manual", "half-auto"]:
                     suggestions = transformer.suggest_fixes(
-                        current_data, self._get_relevant_issues(context.get_profile_results())
+                        current_data,
+                        self._get_relevant_issues(context.get_profile_results()),
                     )
                     if mode == "manual":
                         # In manual mode, user would review suggestions via CLI/UI
@@ -215,7 +220,7 @@ class PipelineStages:
 
                 result = transformer.transform(current_data)
                 current_data = result.data
-                
+
                 # Add applied fixes to context
                 for fix in result.applied_fixes:
                     context.add_applied_fix(fix)
@@ -228,7 +233,9 @@ class PipelineStages:
                     plugin_type="transformer",
                     data={
                         "rows_before": (
-                            len(context.get_data()) if context.get_data() is not None else 0
+                            len(context.get_data())
+                            if context.get_data() is not None
+                            else 0
                         ),
                         "rows_after": len(current_data),
                         "fixes_applied": len(result.applied_fixes),

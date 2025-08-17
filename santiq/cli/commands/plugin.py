@@ -7,7 +7,11 @@ import typer
 from santiq.cli.commands.plugin_external import external_plugin_commands
 from santiq.cli.commands.plugin_install import install_plugin, uninstall_plugin
 from santiq.cli.commands.plugin_list import list_plugins
-from santiq.cli.commands.plugin_manage import search_plugins, show_plugin_info, update_plugins
+from santiq.cli.commands.plugin_manage import (
+    search_plugins,
+    show_plugin_info,
+    update_plugins,
+)
 
 plugin_app = typer.Typer()
 
@@ -121,5 +125,11 @@ def external_plugin_commands_command(
 ) -> None:
     """Manage external plugin configurations."""
     external_plugin_commands(
-        action, plugin_name, package_name, plugin_type, description, version, api_version
+        action,
+        plugin_name,
+        package_name,
+        plugin_type,
+        description,
+        version,
+        api_version,
     )

@@ -122,7 +122,7 @@ class LocalDiscovery:
             PluginLoadError: If the plugin fails to load
         """
         plugin_name = manifest.get("name", "unknown")
-        
+
         # Validate manifest structure
         PluginValidator.validate_manifest(manifest, plugin_name)
 

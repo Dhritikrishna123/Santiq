@@ -36,7 +36,9 @@ class PluginLifecycleManager:
         }
         self._plugin_instances: Dict[str, PluginType] = {}
 
-    def load_plugin(self, plugin_name: str, plugin_type: str, plugins: Dict[str, list]) -> PluginClass:
+    def load_plugin(
+        self, plugin_name: str, plugin_type: str, plugins: Dict[str, list]
+    ) -> PluginClass:
         """Load a specific plugin by name and type.
 
         Args:
@@ -111,7 +113,10 @@ class PluginLifecycleManager:
         Returns:
             Configured plugin instance
         """
-        if plugin_type not in self._loaded_plugins or plugin_name not in self._loaded_plugins[plugin_type]:
+        if (
+            plugin_type not in self._loaded_plugins
+            or plugin_name not in self._loaded_plugins[plugin_type]
+        ):
             raise PluginNotFoundError(plugin_name, plugin_type)
 
         plugin_class = self._loaded_plugins[plugin_type][plugin_name]

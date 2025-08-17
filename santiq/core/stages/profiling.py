@@ -2,8 +2,8 @@
 
 from typing import Any, List
 
-from santiq.core.stages.base import BaseStage
 from santiq.core.pipeline_context import PipelineContext
+from santiq.core.stages.base import BaseStage
 from santiq.plugins.base.profiler import ProfileResult
 
 
@@ -46,7 +46,9 @@ class ProfilingStage(BaseStage):
                 )
 
                 # Validate profiler has required method
-                self._validate_plugin_method(profiler, "profile", profiler_config.plugin)
+                self._validate_plugin_method(
+                    profiler, "profile", profiler_config.plugin
+                )
 
                 # Execute profiling
                 result = profiler.profile(context.get_data())

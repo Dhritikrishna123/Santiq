@@ -4,8 +4,8 @@ from typing import Any
 
 import pandas as pd
 
-from santiq.core.stages.base import BaseStage
 from santiq.core.pipeline_context import PipelineContext
+from santiq.core.stages.base import BaseStage
 
 
 class ExtractionStage(BaseStage):
@@ -38,9 +38,7 @@ class ExtractionStage(BaseStage):
             )
 
             # Log plugin start
-            self._log_plugin_start(
-                pipeline_id, "extract", config.plugin, "extractor"
-            )
+            self._log_plugin_start(pipeline_id, "extract", config.plugin, "extractor")
 
             # Validate extractor has required method
             self._validate_plugin_method(extractor, "extract", config.plugin)

@@ -5,8 +5,8 @@ from typing import Any, Dict, List
 import pandas as pd
 
 from santiq.core.audit import AuditLogger
-from santiq.core.plugin_manager import PluginManager
 from santiq.core.pipeline_context import PipelineContext
+from santiq.core.plugin_manager import PluginManager
 from santiq.core.stages.extraction import ExtractionStage
 from santiq.core.stages.loading import LoadingStage
 from santiq.core.stages.profiling import ProfilingStage
@@ -26,7 +26,9 @@ class PipelineStages:
     Each stage is handled by a dedicated stage class that inherits from BaseStage.
     """
 
-    def __init__(self, plugin_manager: PluginManager, audit_logger: AuditLogger) -> None:
+    def __init__(
+        self, plugin_manager: PluginManager, audit_logger: AuditLogger
+    ) -> None:
         """Initialize the pipeline stages orchestrator.
 
         Args:
@@ -35,7 +37,7 @@ class PipelineStages:
         """
         self.plugin_manager = plugin_manager
         self.audit_logger = audit_logger
-        
+
         # Initialize individual stage handlers
         self.extraction_stage = ExtractionStage(plugin_manager, audit_logger)
         self.profiling_stage = ProfilingStage(plugin_manager, audit_logger)

@@ -7,8 +7,8 @@ from santiq.core.audit import AuditLogger
 from santiq.core.config import ConfigManager, PipelineConfig
 from santiq.core.exceptions import PipelineExecutionError
 from santiq.core.pipeline_context import PipelineContext
-from santiq.core.stages import PipelineStages
 from santiq.core.plugin_manager import PluginManager
+from santiq.core.stages import PipelineStages
 
 
 class Pipeline:
@@ -94,7 +94,9 @@ class Pipeline:
             return {
                 "pipeline_id": pipeline_id,
                 "success": True,
-                "rows_processed": len(context.get_data()) if context.get_data() is not None else 0,
+                "rows_processed": (
+                    len(context.get_data()) if context.get_data() is not None else 0
+                ),
                 "fixes_applied": context.get_applied_fixes(),
                 "load_results": load_results,
                 "data": context.get_data(),

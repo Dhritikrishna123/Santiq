@@ -60,7 +60,9 @@ class PluginValidator:
             )
 
         # Validate required methods based on plugin type
-        PluginValidator._validate_required_methods(plugin_class, plugin_type, plugin_name)
+        PluginValidator._validate_required_methods(
+            plugin_class, plugin_type, plugin_name
+        )
 
     @staticmethod
     def _validate_required_methods(

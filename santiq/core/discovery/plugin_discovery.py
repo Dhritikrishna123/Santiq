@@ -37,8 +37,10 @@ class PluginDiscovery:
         plugins = self.entry_point_discovery.discover_entry_point_plugins()
 
         # Discover local plugins
-        local_plugins = self.local_discovery.discover_local_plugins(self.local_plugin_dirs)
-        
+        local_plugins = self.local_discovery.discover_local_plugins(
+            self.local_plugin_dirs
+        )
+
         # Combine results
         for plugin_type, plugin_list in local_plugins.items():
             plugins[plugin_type].extend(plugin_list)

@@ -4,8 +4,8 @@ from typing import Any, Dict, List
 
 import pandas as pd
 
-from santiq.core.stages.base import BaseStage
 from santiq.core.pipeline_context import PipelineContext
+from santiq.core.stages.base import BaseStage
 from santiq.plugins.base.profiler import ProfileResult
 
 
@@ -16,7 +16,9 @@ class TransformationStage(BaseStage):
     using configured transformer plugins.
     """
 
-    def execute(self, context: PipelineContext, mode: str = "manual", **kwargs: Any) -> pd.DataFrame:
+    def execute(
+        self, context: PipelineContext, mode: str = "manual", **kwargs: Any
+    ) -> pd.DataFrame:
         """Execute the transformation stage.
 
         Args:
@@ -31,7 +33,9 @@ class TransformationStage(BaseStage):
             Exception: If transformation fails and on_error is set to "stop"
         """
         current_data = (
-            context.get_data().copy() if context.get_data() is not None else pd.DataFrame()
+            context.get_data().copy()
+            if context.get_data() is not None
+            else pd.DataFrame()
         )
         pipeline_id = context.get_pipeline_id()
 
@@ -51,8 +55,12 @@ class TransformationStage(BaseStage):
                 )
 
                 # Validate transformer has required methods
-                self._validate_plugin_method(transformer, "transform", transformer_config.plugin)
-                self._validate_plugin_method(transformer, "suggest_fixes", transformer_config.plugin)
+                self._validate_plugin_method(
+                    transformer, "transform", transformer_config.plugin
+                )
+                self._validate_plugin_method(
+                    transformer, "suggest_fixes", transformer_config.plugin
+                )
 
                 # Get suggestions if in interactive mode
                 approved_suggestions = self._get_approved_suggestions(
@@ -62,7 +70,7 @@ class TransformationStage(BaseStage):
                 # Execute transformation
                 result = transformer.transform(current_data)
                 current_data = result.data
-                
+
                 # Add applied fixes to context
                 for fix in result.applied_fixes:
                     context.add_applied_fix(fix)
@@ -75,7 +83,9 @@ class TransformationStage(BaseStage):
                     "transformer",
                     data={
                         "rows_before": (
-                            len(context.get_data()) if context.get_data() is not None else 0
+                            len(context.get_data())
+                            if context.get_data() is not None
+                            else 0
                         ),
                         "rows_after": len(current_data),
                         "fixes_applied": len(result.applied_fixes),
@@ -131,7 +141,7 @@ class TransformationStage(BaseStage):
             suggestions = transformer.suggest_fixes(
                 data, self._get_relevant_issues(context.get_profile_results())
             )
-            
+
             if mode == "manual":
                 # In manual mode, user would review suggestions via CLI/UI
                 return self._get_user_approval(suggestions)

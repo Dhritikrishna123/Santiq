@@ -6,8 +6,8 @@ from typing import Any, Dict, Optional
 import pandas as pd
 
 from santiq.core.audit import AuditLogger
-from santiq.core.plugin_manager import PluginManager
 from santiq.core.pipeline_context import PipelineContext
+from santiq.core.plugin_manager import PluginManager
 
 
 class BaseStage(ABC):
@@ -17,7 +17,9 @@ class BaseStage(ABC):
     including plugin management, audit logging, and error handling.
     """
 
-    def __init__(self, plugin_manager: PluginManager, audit_logger: AuditLogger) -> None:
+    def __init__(
+        self, plugin_manager: PluginManager, audit_logger: AuditLogger
+    ) -> None:
         """Initialize the base stage.
 
         Args:
