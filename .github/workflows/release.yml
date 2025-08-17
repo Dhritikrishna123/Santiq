@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   # Validate release
   validate:
@@ -96,11 +100,11 @@ jobs:
         generate_release_notes: true
         draft: false
         prerelease: false
-        title: Release ${{ github.ref_name }}
         body: |
           ## 🚀 Santiq ${{ github.ref_name }}
           
           ### 📦 What's New
+          - Fixed CLI version command: now uses `--version` instead of `version` subcommand
           - Enhanced ETL pipeline capabilities
           - Improved plugin system
           - Comprehensive documentation
