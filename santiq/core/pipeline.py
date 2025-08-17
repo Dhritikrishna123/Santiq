@@ -7,7 +7,7 @@ from santiq.core.audit import AuditLogger
 from santiq.core.config import ConfigManager, PipelineConfig
 from santiq.core.exceptions import PipelineExecutionError
 from santiq.core.pipeline_context import PipelineContext
-from santiq.core.pipeline_stages import PipelineStages
+from santiq.core.stages import PipelineStages
 from santiq.core.plugin_manager import PluginManager
 
 
