@@ -273,18 +273,22 @@ jobs:
     - name: Check documentation
       run: |
         # Check if all documentation files exist
-        test -f README.md
-        test -f docs/README.md
-        test -f docs/getting-started.md
-        test -f docs/user-guide.md
-        test -f docs/configuration.md
-        test -f docs/cli-reference.md
-        test -f docs/plugin-development.md
-        test -f docs/api-reference.md
-        test -f docs/installation.md
-        test -f docs/monitoring.md
-        test -f examples/basic_pipeline.yml
-        test -f examples/external_plugins_example.yml
+        ls -la README.md
+        ls -la docs/
+        ls -la examples/
+        
+        test -f README.md && echo "✓ README.md exists"
+        test -f docs/README.md && echo "✓ docs/README.md exists"
+        test -f docs/getting-started.md && echo "✓ docs/getting-started.md exists"
+        test -f docs/user-guide.md && echo "✓ docs/user-guide.md exists"
+        test -f docs/configuration.md && echo "✓ docs/configuration.md exists"
+        test -f docs/cli-reference.md && echo "✓ docs/cli-reference.md exists"
+        test -f docs/plugin-development.md && echo "✓ docs/plugin-development.md exists"
+        test -f docs/api-reference.md && echo "✓ docs/api-reference.md exists"
+        test -f docs/installation.md && echo "✓ docs/installation.md exists"
+        test -f docs/monitoring.md && echo "✓ docs/monitoring.md exists"
+        test -f examples/basic_pipeline.yml && echo "✓ examples/basic_pipeline.yml exists"
+        test -f examples/external_plugins_example.yml && echo "✓ examples/external_plugins_example.yml exists"
         
         echo "✓ All documentation files present"
     
