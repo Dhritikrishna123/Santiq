@@ -273,11 +273,11 @@ jobs:
     - name: Check documentation
       run: |
         # Check if all documentation files exist
-        ls -la README.md
+        ls -la Readme.md
         ls -la docs/
         ls -la examples/
         
-        test -f README.md && echo "✓ README.md exists"
+        test -f Readme.md && echo "✓ Readme.md exists"
         test -f docs/README.md && echo "✓ docs/README.md exists"
         test -f docs/getting-started.md && echo "✓ docs/getting-started.md exists"
         test -f docs/user-guide.md && echo "✓ docs/user-guide.md exists"
