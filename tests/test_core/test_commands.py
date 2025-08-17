@@ -20,7 +20,7 @@ class TestCLICommands:
     def test_version_command(self):
         """Test version command."""
         runner = CliRunner()
-        result = runner.invoke(app, ["version"])
+        result = runner.invoke(app, ["--version"])
 
         assert result.exit_code == 0
         assert "santiq version" in result.stdout

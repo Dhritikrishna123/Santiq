@@ -43,7 +43,7 @@ santiq plugin list --help
 Display Santiq version information.
 
 ```bash
-santiq version
+santiq --version
 ```
 
 **Output**:

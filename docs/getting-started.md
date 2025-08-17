@@ -24,7 +24,7 @@ Welcome to Santiq! This guide will help you get up and running with your first d
 pip install santiq
 
 # Verify installation
-santiq version
+santiq --version
 ```
 
 You should see output like:

@@ -10,21 +10,37 @@ app = typer.Typer(
     name="santiq",
     help="santiq - A lightweight, modular, plugin-first ETL platform",
     no_args_is_help=True,
+    add_completion=False,
 )
 
 console = Console(force_terminal=True)
 
+
+def version_callback(value: bool) -> None:
+    """Show version information."""
+    if value:
+        from santiq import __version__
+        console.print(f"santiq version {__version__}")
+        raise typer.Exit()
+
+
+@app.callback()
+def main(
+    version: bool = typer.Option(
+        None,
+        "--version",
+        callback=version_callback,
+        is_eager=True,
+        help="Show version information and exit.",
+    ),
+) -> None:
+    """santiq - A lightweight, modular, plugin-first ETL platform"""
+    pass
+
+
 # Add subcommands
 app.add_typer(run_app, name="run", help="Run ETL pipelines")
 app.add_typer(plugin_app, name="plugin", help="Manage plugins")
-
-
-@app.command()
-def version() -> None:
-    """Show version information."""
-    from santiq import __version__
-
-    console.print(f"santiq version {__version__}")
 
 
 @app.command()
