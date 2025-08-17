@@ -1,37 +1,51 @@
 # Santiq Documentation
 
-Welcome to the Santiq documentation! This directory contains comprehensive guides for using and extending the Santiq ETL platform.
+Welcome to the comprehensive Santiq documentation! This directory contains detailed guides for using, configuring, and extending the Santiq ETL platform.
 
 ## 📚 Documentation Overview
 
-### For Users
-- **[User Guide](user_guide.md)** - Complete guide to using Santiq for data processing
-- **[Quick Reference](quick_reference.md)** - Quick commands and configuration reference
+### 🚀 Getting Started
+- **[Getting Started Guide](getting-started.md)** - Quick start tutorial for beginners
+- **[Installation Guide](installation.md)** - Installation and deployment options
 
-### For Developers
-- **[Plugin Development Guide](plugin_development.md)** - Create custom plugins for Santiq
-- **[External Plugin Development Guide](external_plugin_development_guide.md)** - Develop and distribute external plugins
+### 👥 For Users
+- **[User Guide](user-guide.md)** - Comprehensive usage instructions
+- **[Configuration Reference](configuration.md)** - Complete configuration options
+- **[CLI Reference](cli-reference.md)** - Command-line interface documentation
 
-### For Administrators
-- **[External Plugin Guide](external_plugin_guide.md)** - Manage external plugin configurations
+### 🔌 For Developers
+- **[Plugin Development Guide](plugin-development.md)** - Create custom plugins
+- **[API Reference](api-reference.md)** - Core API documentation
 
-## 🚀 Quick Start
+### 📊 For Operations
+- **[Monitoring & Logging Guide](monitoring.md)** - Observability and monitoring
 
-1. **Install Santiq**: `pip install santiq`
-2. **Read the [User Guide](user_guide.md)** for comprehensive usage instructions
-3. **Use [Quick Reference](quick_reference.md)** for common commands
-4. **Create your first pipeline**: `santiq init my-pipeline`
+## 🎯 Quick Navigation
+
+| What you want to do | Start here |
+|-------------------|------------|
+| **First time using Santiq** | [Getting Started Guide](getting-started.md) |
+| **Install Santiq** | [Installation Guide](installation.md) |
+| **Learn how to use Santiq** | [User Guide](user-guide.md) |
+| **Configure pipelines** | [Configuration Reference](configuration.md) |
+| **Use command line tools** | [CLI Reference](cli-reference.md) |
+| **Create custom plugins** | [Plugin Development Guide](plugin-development.md) |
+| **Use Santiq programmatically** | [API Reference](api-reference.md) |
+| **Monitor and troubleshoot** | [Monitoring Guide](monitoring.md) |
 
 ## 📖 Documentation Structure
 
 ```
 docs/
-├── README.md                           # This file - documentation overview
-├── user_guide.md                       # Comprehensive user guide
-├── quick_reference.md                  # Quick reference guide
-├── plugin_development.md               # Plugin development guide
-├── external_plugin_guide.md            # External plugin management
-└── external_plugin_development_guide.md # External plugin development
+├── README.md                    # This file - documentation overview
+├── getting-started.md           # Quick start tutorial
+├── user-guide.md               # Comprehensive usage guide
+├── configuration.md            # Configuration reference
+├── cli-reference.md            # CLI commands and options
+├── plugin-development.md       # Custom plugin creation
+├── api-reference.md            # Core API documentation
+├── installation.md             # Installation and deployment
+└── monitoring.md               # Monitoring and observability
 ```
 
 ## 🎯 Documentation Goals
@@ -40,15 +54,15 @@ Our documentation aims to:
 
 - **Empower Users**: Provide clear, practical guidance for data processing workflows
 - **Support Developers**: Offer comprehensive examples and best practices for plugin development
-- **Enable Community**: Make it easy for contributors to extend and improve Santiq
+- **Enable Operations**: Provide monitoring, logging, and troubleshooting guidance
 - **Maintain Quality**: Ensure all documentation is accurate, up-to-date, and user-friendly
 
 ## 🔗 Related Resources
 
 - **[Main README](../Readme.md)** - Project overview and quick start
 - **[CONTRIBUTING](../CONTRIBUTING.md)** - Guidelines for contributing to Santiq
-- **[GitHub Repository](https://github.com/yourusername/santiq)** - Source code and issues
-- **[PyPI Package](https://pypi.org/project/santiq/)** - Installation and releases
+- **[Examples](../examples/)** - Sample pipelines and configurations
+- **[Tests](../tests/)** - Test examples and validation
 
 ## 📝 Contributing to Documentation
 
@@ -63,8 +77,8 @@ We welcome contributions to improve our documentation! Please:
 
 If you need help with Santiq:
 
-1. **Check the Documentation**: Start with the [User Guide](user_guide.md)
-2. **Use Quick Reference**: Find commands in [Quick Reference](quick_reference.md)
+1. **Check the Documentation**: Start with the [Getting Started Guide](getting-started.md)
+2. **Use CLI Reference**: Find commands in [CLI Reference](cli-reference.md)
 3. **Search Issues**: Look for similar problems in our GitHub issues
 4. **Ask the Community**: Join our discussions and ask questions
 5. **Report Bugs**: Create detailed issue reports for problems
@@ -73,4 +87,4 @@ If you need help with Santiq:
 
 **Happy Data Processing!** 🚀
 
-Start with the [User Guide](user_guide.md) to learn how to use Santiq effectively.
+Start with the [Getting Started Guide](getting-started.md) to learn how to use Santiq effectively.
