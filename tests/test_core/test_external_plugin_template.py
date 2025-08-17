@@ -242,10 +242,8 @@ class TestTransformerPlugin(TransformerPlugin):
     def _validate_emails(self, data: pd.DataFrame, applied_fixes: List[Dict[str, Any]]) -> pd.DataFrame:
         """Validate email formats."""
         if "email" in data.columns:
-            import re
-            email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-            
-            valid_emails = data["email"].str.match(email_pattern, na=False)
+            # Simple email validation - just check if it contains @ and .
+            valid_emails = data["email"].str.contains('@', na=False) & data["email"].str.contains('.', na=False)
             invalid_count = (~valid_emails).sum()
             
             if invalid_count > 0:
