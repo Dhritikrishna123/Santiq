@@ -118,8 +118,8 @@ Santiq comes with built-in plugins and supports a growing ecosystem:
 ### Community Plugins
 ```bash
 # Install community plugins
-santiq plugin install santiq-plugin-postgres
-santiq plugin install santiq-plugin-elasticsearch
+santiq plugin install <plugin_name>
+# Community plugins are currently in developement 
 
 # List available plugins
 santiq plugin list --available
