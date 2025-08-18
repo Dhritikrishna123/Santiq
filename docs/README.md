@@ -59,7 +59,7 @@ Our documentation aims to:
 
 ## 🔗 Related Resources
 
-- **[Main README](../Readme.md)** - Project overview and quick start
+- **[Main README](../README.md)** - Project overview and quick start
 - **[CONTRIBUTING](../CONTRIBUTING.md)** - Guidelines for contributing to Santiq
 - **[Examples](../examples/)** - Sample pipelines and configurations
 - **[Tests](../tests/)** - Test examples and validation
