@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional
+import os
 
 import typer
 from rich.console import Console
@@ -115,6 +116,10 @@ def _show_external_plugins(plugin_type: Optional[str] = None) -> None:
     try:
         engine = ETLEngine()
         external_plugins = engine.list_external_plugins()
+        
+        # Show config file location
+        config_path = os.path.expanduser("~/.santiq/external_plugins.yml")
+        console.print(f"[dim]Config file: {config_path}[/dim]\n")
 
         if not any(external_plugins.values()):
             console.print("[yellow]No external plugins configured[/yellow]")
@@ -686,19 +691,25 @@ def _add_external_plugin_config(
             "api_version": api_version or "1.0",
         }
 
+        # Add the configuration (this will auto-create the config file if needed)
         engine.add_external_plugin_config(plugin_name, plugin_config)
+        
+        # Get the config file path for user feedback
+        config_path = os.path.expanduser("~/.santiq/external_plugins.yml")
+        
         console.print(
             f"[green]✓ Added external plugin configuration:[/green] {plugin_name}"
         )
         console.print(f"[blue]Package:[/blue] {package_name}")
         console.print(f"[blue]Type:[/blue] {plugin_type}")
+        console.print(f"[blue]Config file:[/blue] {config_path}")
 
         # Check if package is already installed
         if engine.is_package_installed(package_name):
             console.print("[green]✓ Package is already installed[/green]")
         else:
             console.print(
-                "[yellow]⚠ Package not installed - use 'santiq plugin external install' to install[/yellow]"
+                f"[yellow]⚠ Package not installed - install with:[/yellow] [cyan]santiq plugin external install {plugin_name}[/cyan]"
             )
 
     except Exception as e:
@@ -751,7 +762,7 @@ def _install_external_plugin(plugin_name: str, package_name: Optional[str]) -> N
                 f"[red]Error:[/red] Plugin '{plugin_name}' not found in configuration"
             )
             console.print(
-                f"[blue]Tip:[/blue] Add configuration first with 'santiq plugin external add {plugin_name}'"
+                f"[blue]Tip:[/blue] Add configuration first with 'santiq plugin external add {plugin_name} --package <package_name> --type <type>'"
             )
             raise typer.Exit(1)
 
@@ -787,6 +798,7 @@ def _install_external_plugin(plugin_name: str, package_name: Optional[str]) -> N
                 # Verify installation
                 if engine.is_package_installed(package_name):
                     console.print(f"[green]✓ Package verification successful[/green]")
+                    console.print(f"[blue]Plugin stored in:[/blue] ~/.santiq/external_plugins.yml")
                 else:
                     console.print(
                         f"[yellow]⚠ Package verification failed - plugin may not be available[/yellow]"
