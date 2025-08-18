@@ -20,6 +20,11 @@ class ExcelExtractor(ExtractorPlugin):
     sheet selection, header handling, data types, and more. Supports all
     standard pandas read_excel parameters for maximum flexibility.
 
+    __plugin_name__ = "Excel Extractor"
+    __version__ = "0.1.5"
+    __description__ = "Extracts data from Excel files with configurable options"
+    __api_version__ = "1.0"
+
     Configuration Parameters:
         path (str): Path to the Excel file (required)
         sheet_name (str|int|list): Sheet name, index, or list of sheets (default: 0)

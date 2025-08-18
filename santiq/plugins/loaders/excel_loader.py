@@ -20,6 +20,11 @@ class ExcelLoader(LoaderPlugin):
     Supports multiple sheets, formatting, and various Excel formats.
     Provides robust error handling for file operations.
 
+    __plugin_name__ = "Excel Loader"
+    __version__ = "0.1.5"
+    __description__ = "Loads data to Excel files with configurable options"
+    __api_version__ = "1.0"
+
     Configuration Parameters:
         path (str): Output file path (required)
         sheet_name (str): Sheet name (default: 'Sheet1')

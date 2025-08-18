@@ -40,7 +40,7 @@ class JSONLoader(LoaderPlugin):
     """
 
     __plugin_name__ = "JSON Loader"
-    __version__ = "0.1.0"
+    __version__ = "0.1.5"
     __description__ = "Load data to JSON files with configurable options"
     __api_version__ = "1.0"
 

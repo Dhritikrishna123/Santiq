@@ -113,7 +113,7 @@ Santiq comes with built-in plugins and supports a growing ecosystem:
 - **Extractors**: CSV, JSON, Excel files
 - **Profilers**: Basic data quality analysis
 - **Transformers**: Data cleaning, validation, type conversion
-- **Loaders**: CSV, JSON, database outputs
+- **Loaders**: CSV, JSON, Excel files
 
 ### Community Plugins
 ```bash
@@ -172,8 +172,8 @@ santiq run pipeline migration.yml --mode half-auto
                     │       Loaders           │
                     │  ┌─────────────────┐    │
                     │  │      CSV        │    │
-                    │  │    Database     │    │
-                    │  │   Cloud Storage │    │
+                    │  │     Excel       │    │
+                    │  │     JSON        │    │
                     │  └─────────────────┘    │
                     └─────────────────────────┘
 ```

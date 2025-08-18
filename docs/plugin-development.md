@@ -536,7 +536,7 @@ setup(
     author_email="your.email@example.com",
     packages=find_packages(),
     install_requires=[
-        "santiq>=0.1.0",
+        "santiq>=0.1.5",
         "pandas>=2.0.0",
     ],
     entry_points={

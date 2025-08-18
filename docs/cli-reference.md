@@ -48,7 +48,7 @@ santiq --version
 
 **Output**:
 ```
-santiq version 0.1.0
+santiq version 0.1.5
 ```
 
 ### Init
@@ -204,8 +204,9 @@ Extractors:
 ┌──────────────┬─────────┬─────┬────────┬────────┬─────────────────────────────┐
 │ Name         │ Version │ API │ Source │ Status │ Description                 │
 ├──────────────┼─────────┼─────┼────────┼────────┼─────────────────────────────┤
-│ csv_extractor│ 0.1.0   │ 1.0 │ entry_ │ ✓ Avai │ Extracts data from CSV fi  │
-│ json_extract │ 0.1.0   │ 1.0 │ entry_ │ ✓ Avai │ Extracts data from JSON f  │
+│ csv_extractor│ 0.1.5   │ 1.0 │ entry_ │ ✓ Avai │ Extracts data from CSV fi  │
+│ excel_extractor│ 0.1.5   │ 1.0 │ entry_ │ ✓ Avai │ Extracts data from Excel  │
+│ json_extractor│ 0.1.5   │ 1.0 │ entry_ │ ✓ Avai │ Extracts data from JSON f  │
 └──────────────┴─────────┴─────┴────────┴────────┴─────────────────────────────┘
 ```
 
@@ -357,7 +358,7 @@ Description: Extract data from CSV files
 Installed Plugin Information: csv_extractor
 Name: CSV Extractor
 Type: extractor
-Version: 0.1.0
+Version: 0.1.5
 API Version: 1.0
 Source: entry_point
 Description: Extracts data from CSV files with configurable options

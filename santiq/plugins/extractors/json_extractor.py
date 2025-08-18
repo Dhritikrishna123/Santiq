@@ -41,7 +41,7 @@ class JSONExtractor(ExtractorPlugin):
     """
 
     __plugin_name__ = "JSON Extractor"
-    __version__ = "0.1.0"
+    __version__ = "0.1.5"
     __description__ = "Extracts data from JSON files with configurable options"
     __api_version__ = "1.0"
 

@@ -33,7 +33,7 @@ class BasicProfiler(ProfilerPlugin):
     """
 
     __plugin_name__ = "Basic Profiler"
-    __version__ = "0.1.0"
+    __version__ = "0.1.5"
     __description__ = "Performs basic profiling on data"
     __api_version__ = "1.0"
 

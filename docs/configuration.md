@@ -160,6 +160,34 @@ extractor:
 - `lines` (boolean): Whether file is in JSON Lines format
 - `encoding` (string): File encoding (default: 'utf-8')
 
+#### Excel Extractor (`excel_extractor`)
+
+Extracts data from Excel files (.xlsx, .xls) using pandas.
+
+```yaml
+extractor:
+  plugin: excel_extractor
+  params:
+    path: "data.xlsx"                   # Required: File path
+    sheet_name: "Sheet1"                # Optional: Sheet name or index
+    header: 0                           # Optional: Header row (0-based)
+    skiprows: 0                         # Optional: Rows to skip
+    engine: "openpyxl"                  # Optional: Engine ('openpyxl', 'xlrd')
+    dtype: {}                           # Optional: Column data types
+    na_values: []                       # Optional: Values to treat as NaN
+    nrows: null                         # Optional: Number of rows to read
+```
+
+**Parameters**:
+- `path` (string, required): Path to Excel file (.xlsx, .xls)
+- `sheet_name` (string/integer): Sheet name or index (default: 0)
+- `header` (integer): Row number to use as column names (default: 0)
+- `skiprows` (integer): Number of rows to skip (default: 0)
+- `engine` (string): Engine to use ('openpyxl' for .xlsx, 'xlrd' for .xls)
+- `dtype` (dict): Data types for specific columns
+- `na_values` (list): Values to treat as NaN
+- `nrows` (integer): Number of rows to read
+
 ### Profilers
 
 #### Basic Profiler (`basic_profiler`)
@@ -258,6 +286,30 @@ loaders:
 - `orient` (string): JSON orientation (default: 'records')
 - `indent` (integer): Indentation for pretty printing
 - `encoding` (string): File encoding (default: 'utf-8')
+
+#### Excel Loader (`excel_loader`)
+
+Writes data to Excel files (.xlsx, .xls) using pandas.
+
+```yaml
+loaders:
+  - plugin: excel_loader
+    params:
+      path: "output.xlsx"               # Required: Output file path
+      sheet_name: "Sheet1"              # Optional: Sheet name
+      index: false                      # Optional: Include index
+      engine: "openpyxl"                # Optional: Engine ('openpyxl', 'xlsxwriter')
+      header: true                      # Optional: Include header
+      na_rep: ""                        # Optional: Null value representation
+```
+
+**Parameters**:
+- `path` (string, required): Output file path (.xlsx, .xls)
+- `sheet_name` (string): Sheet name (default: 'Sheet1')
+- `index` (boolean): Include DataFrame index (default: false)
+- `engine` (string): Engine to use ('openpyxl' for .xlsx, 'xlsxwriter' for advanced features)
+- `header` (boolean): Include column headers (default: true)
+- `na_rep` (string): Representation for null values (default: '')
 
 ## 🔧 Environment Variables
 

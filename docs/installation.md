@@ -79,7 +79,7 @@ Install the latest stable release from PyPI:
 pip install santiq
 
 # Install specific version
-pip install santiq==0.1.0
+pip install santiq==0.1.5
 
 # Upgrade existing installation
 pip install --upgrade santiq

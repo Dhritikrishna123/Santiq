@@ -29,7 +29,7 @@ santiq --version
 
 You should see output like:
 ```
-santiq version 0.1.0
+santiq version 0.1.5
 ```
 
 ### Optional: Install with Development Dependencies

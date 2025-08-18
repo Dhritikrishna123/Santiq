@@ -44,7 +44,7 @@ class BasicCleaner(TransformerPlugin):
     """
 
     __plugin_name__ = "Basic Cleaner"
-    __version__ = "0.1.0"
+    __version__ = "0.1.5"
     __description__ = (
         "Basic data cleaning: drop nulls, remove duplicates, type conversions"
     )

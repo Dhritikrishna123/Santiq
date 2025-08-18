@@ -150,6 +150,7 @@ Santiq comes with several built-in plugins:
 
 #### Loaders
 - `csv_loader`: Write to CSV files
+- `excel_loader`: Write to Excel files
 - `json_loader`: Write to JSON files
 
 ### Installing Community Plugins

@@ -41,7 +41,7 @@ class CSVLoader(LoaderPlugin):
     """
 
     __plugin_name__ = "CSV Loader"
-    __version__ = "0.1.0"
+    __version__ = "0.1.5"
     __description__ = "Load data to CSV files with configurable options"
     __api_version__ = "1.0"
 
