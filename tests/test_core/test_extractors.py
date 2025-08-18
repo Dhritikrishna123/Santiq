@@ -9,6 +9,7 @@ import pytest
 from santiq.plugins.base.extractor import ExtractorPlugin
 from santiq.plugins.extractors.csv_extractor import CSVExtractor
 from santiq.plugins.extractors.json_extractor import JSONExtractor
+from santiq.plugins.extractors.excel_extractor import ExcelExtractor
 
 
 class TestCSVExtractor:
@@ -203,3 +204,121 @@ class TestJSONExtractor:
         assert "json_format" in schema_info
         # The schema detection might not work perfectly in all cases, so we're more flexible
         # Just check that we have the basic structure
+
+
+class TestExcelExtractor:
+    """Test Excel extractor plugin."""
+
+    def test_excel_extractor_basic(self, temp_dir: Path):
+        """Test basic Excel extraction functionality."""
+        # Create a simple Excel file using pandas
+        import pandas as pd
+        
+        data = pd.DataFrame({
+            "id": [1, 2, 3],
+            "name": ["Alice", "Bob", "Charlie"],
+            "age": [25, 30, 35]
+        })
+        
+        excel_file = temp_dir / "test.xlsx"
+        data.to_excel(excel_file, index=False)
+
+        extractor = ExcelExtractor()
+        extractor.setup({"path": str(excel_file)})
+
+        result = extractor.extract()
+
+        assert len(result) == 3
+        assert list(result.columns) == ["id", "name", "age"]
+        assert result.loc[0, "name"] == "Alice"
+        
+        # Force cleanup of any open file handles
+        import gc
+        import time
+        gc.collect()
+        time.sleep(0.1)
+
+    def test_excel_extractor_with_options(self, temp_dir: Path):
+        """Test Excel extractor with pandas options."""
+        import pandas as pd
+        
+        # Create Excel with header in row 2
+        data = pd.DataFrame({
+            "id": [1, 2, 3],
+            "name": ["Alice", "Bob", "Charlie"],
+            "age": [25, 30, 35]
+        })
+        
+        excel_file = temp_dir / "test.xlsx"
+        
+        # Write data directly to Excel
+        data.to_excel(excel_file, index=False)
+
+        extractor = ExcelExtractor()
+        extractor.setup({
+            "path": str(excel_file),
+            "header": 0,  # Header is in row 0 (default)
+            "skiprows": 0  # No rows to skip
+        })
+
+        result = extractor.extract()
+
+        assert len(result) == 3
+        assert list(result.columns) == ["id", "name", "age"]
+        
+        # Force cleanup of any open file handles
+        import gc
+        import time
+        gc.collect()
+        time.sleep(0.1)
+
+    def test_excel_extractor_invalid_file(self, temp_dir: Path):
+        """Test Excel extractor with invalid file."""
+        excel_file = temp_dir / "nonexistent.xlsx"
+
+        extractor = ExcelExtractor()
+        
+        with pytest.raises(FileNotFoundError):
+            extractor.setup({"path": str(excel_file)})
+
+    def test_excel_extractor_missing_path(self):
+        """Test Excel extractor with missing path."""
+        extractor = ExcelExtractor()
+
+        with pytest.raises(ValueError, match="'path' is required"):
+            extractor.setup({})
+
+    def test_get_schema_info(self, temp_dir: Path):
+        """Test getting schema information."""
+        import pandas as pd
+        
+        data = pd.DataFrame({
+            "id": [1, 2, 3],
+            "name": ["Alice", "Bob", "Charlie"],
+            "age": [25, 30, 35]
+        })
+        
+        excel_file = temp_dir / "test.xlsx"
+        data.to_excel(excel_file, index=False)
+
+        extractor = ExcelExtractor()
+        extractor.setup({"path": str(excel_file)})
+
+        schema_info = extractor.get_schema_info()
+
+        assert "columns" in schema_info
+        assert "data_types" in schema_info
+        assert "estimated_rows" in schema_info
+        assert "sheet_names" in schema_info
+        assert "file_size_bytes" in schema_info
+        assert "engine" in schema_info
+        assert len(schema_info["columns"]) == 3
+        assert "id" in schema_info["columns"]
+        assert "name" in schema_info["columns"]
+        assert "age" in schema_info["columns"]
+        
+        # Force cleanup of any open file handles
+        import gc
+        import time
+        gc.collect()
+        time.sleep(0.1)  # Small delay to ensure file handles are released

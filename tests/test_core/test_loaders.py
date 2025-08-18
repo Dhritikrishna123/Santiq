@@ -9,6 +9,7 @@ import pytest
 from santiq.plugins.base.loader import LoadResult
 from santiq.plugins.loaders.csv_loader import CSVLoader
 from santiq.plugins.loaders.json_loader import JSONLoader
+from santiq.plugins.loaders.excel_loader import ExcelLoader
 
 
 class TestCSVLoader:
@@ -266,3 +267,111 @@ class TestJSONLoader:
             loader.setup({})
 
         assert "requires 'path' parameter" in str(exc_info.value)
+
+
+class TestExcelLoader:
+    """Test Excel loader plugin."""
+
+    def test_basic_loading(self, temp_dir: Path, sample_data: pd.DataFrame):
+        """Test basic Excel loading functionality."""
+        output_path = temp_dir / "output.xlsx"
+
+        loader = ExcelLoader()
+        loader.setup({"path": str(output_path)})
+
+        result = loader.load(sample_data)
+
+        assert isinstance(result, LoadResult)
+        assert result.success is True
+        assert result.rows_loaded == len(sample_data)
+        assert result.metadata["output_path"] == str(output_path)
+        assert result.metadata["columns"] == list(sample_data.columns)
+        assert result.metadata["file_size_bytes"] > 0
+        assert result.metadata["sheet_name"] == "Sheet1"
+        assert result.metadata["engine"] == "openpyxl"
+        
+        # Force cleanup of any open file handles
+        import gc
+        import time
+        gc.collect()
+        time.sleep(0.1)
+
+    def test_loading_with_options(self, temp_dir: Path, sample_data: pd.DataFrame):
+        """Test Excel loading with various options."""
+        output_path = temp_dir / "output.xlsx"
+
+        loader = ExcelLoader()
+        loader.setup({
+            "path": str(output_path),
+            "sheet_name": "Data",
+            "engine": "openpyxl",
+            "index": True,
+            "header": True
+        })
+
+        result = loader.load(sample_data)
+
+        assert result.success is True
+        assert result.metadata["sheet_name"] == "Data"
+        assert result.metadata["index_included"] is True
+        
+        # Force cleanup of any open file handles
+        import gc
+        import time
+        gc.collect()
+        time.sleep(0.1)
+
+    def test_loading_missing_path(self):
+        """Test Excel loader with missing path."""
+        loader = ExcelLoader()
+
+        with pytest.raises(ValueError, match="'path' is required"):
+            loader.setup({})
+
+    def test_incremental_loading(self, temp_dir: Path, sample_data: pd.DataFrame):
+        """Test incremental Excel loading."""
+        output_path = temp_dir / "output.xlsx"
+
+        loader = ExcelLoader()
+        loader.setup({"path": str(output_path)})
+
+        # First load (normal)
+        result1 = loader.load(sample_data)
+        assert result1.success is True
+
+        # Second load (append to existing file)
+        result2 = loader.load_incremental(sample_data, mode="a", if_sheet_exists="overlay")
+        assert result2.success is True
+        assert result2.metadata["mode"] == "a"
+        assert result2.metadata["if_sheet_exists"] == "overlay"
+        
+        # Force cleanup of any open file handles
+        import gc
+        import time
+        gc.collect()
+        time.sleep(0.1)
+
+    def test_loading_error_handling(self, temp_dir: Path):
+        """Test Excel loader error handling."""
+        # Create invalid data that might cause issues
+        invalid_data = pd.DataFrame({
+            "col1": [1, 2, 3],
+            "col2": [None, None, None]  # All nulls might cause issues
+        })
+
+        output_path = temp_dir / "output.xlsx"
+
+        loader = ExcelLoader()
+        loader.setup({"path": str(output_path)})
+
+        result = loader.load(invalid_data)
+
+        # Should still succeed even with null data
+        assert result.success is True
+        assert result.rows_loaded == 3
+        
+        # Force cleanup of any open file handles
+        import gc
+        import time
+        gc.collect()
+        time.sleep(0.1)

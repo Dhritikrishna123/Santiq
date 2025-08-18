@@ -1,0 +1,43 @@
+name: "Excel Data Processing Pipeline"
+description: "A pipeline that processes Excel data using the new Excel extractor and loader plugins"
+
+# Extract data from Excel file
+extractor:
+  plugin: excel_extractor
+  params:
+    path: "${INPUT_PATH}/sample_data.xlsx"
+    sheet_name: "Sheet1"
+    header: 0
+    skiprows: 1
+    engine: "openpyxl"
+
+# Profile the data to find issues
+profilers:
+  - plugin: basic_profiler
+    params: {}
+
+# Clean the data
+transformers:
+  - plugin: basic_cleaner
+    params:
+      drop_nulls: true
+      drop_duplicates: true
+      convert_types:
+        age: numeric
+        signup_date: datetime
+
+# Save cleaned data as Excel
+loaders:
+  - plugin: excel_loader
+    params:
+      path: "${OUTPUT_PATH}/cleaned_data.xlsx"
+      sheet_name: "Cleaned_Data"
+      engine: "openpyxl"
+      index: false
+      header: true
+
+# Global configuration
+config:
+  input_path: "examples/sample_data"
+  output_path: "examples/output"
+  log_level: "INFO"
