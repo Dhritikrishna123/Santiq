@@ -48,6 +48,7 @@ santiq = "santiq.cli.main:app"
 
 [project.entry-points."santiq.extractors"]
 csv_extractor = "santiq.plugins.extractors.csv_extractor:CSVExtractor"
+json_extractor = "santiq.plugins.extractors.json_extractor:JSONExtractor"
 
 [project.entry-points."santiq.profilers"]
 basic_profiler = "santiq.plugins.profilers.basic_profiler:BasicProfiler"
@@ -57,6 +58,7 @@ basic_cleaner = "santiq.plugins.transformers.basic_cleaner:BasicCleaner"
 
 [project.entry-points."santiq.loaders"]
 csv_loader = "santiq.plugins.loaders.csv_loader:CSVLoader"
+json_loader = "santiq.plugins.loaders.json_loader:JSONLoader"
 
 [tool.setuptools.packages.find]
 include = ["santiq*"]

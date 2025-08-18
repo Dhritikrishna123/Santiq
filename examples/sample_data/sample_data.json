@@ -1,0 +1,92 @@
+[
+  {
+    "id": 1,
+    "name": "Alice Johnson",
+    "email": "alice.johnson@example.com",
+    "age": 28,
+    "signup_date": "2023-01-15",
+    "department": "Engineering",
+    "salary": 75000
+  },
+  {
+    "id": 2,
+    "name": "Bob Smith",
+    "email": "bob.smith@example.com",
+    "age": 32,
+    "signup_date": "2023-02-20",
+    "department": "Marketing",
+    "salary": 65000
+  },
+  {
+    "id": 3,
+    "name": "Charlie Brown",
+    "email": "charlie.brown@example.com",
+    "age": 25,
+    "signup_date": "2023-03-10",
+    "department": "Sales",
+    "salary": 55000
+  },
+  {
+    "id": 4,
+    "name": "Diana Prince",
+    "email": "diana.prince@example.com",
+    "age": 29,
+    "signup_date": "2023-04-05",
+    "department": "Engineering",
+    "salary": 80000
+  },
+  {
+    "id": 5,
+    "name": "Eve Wilson",
+    "email": "eve.wilson@example.com",
+    "age": 27,
+    "signup_date": "2023-05-12",
+    "department": "HR",
+    "salary": 60000
+  },
+  {
+    "id": 6,
+    "name": "Frank Miller",
+    "email": "frank.miller@example.com",
+    "age": 35,
+    "signup_date": "2023-06-18",
+    "department": "Engineering",
+    "salary": 90000
+  },
+  {
+    "id": 7,
+    "name": "Grace Lee",
+    "email": "grace.lee@example.com",
+    "age": 24,
+    "signup_date": "2023-07-22",
+    "department": "Marketing",
+    "salary": 58000
+  },
+  {
+    "id": 8,
+    "name": "Henry Davis",
+    "email": "henry.davis@example.com",
+    "age": 31,
+    "signup_date": "2023-08-30",
+    "department": "Sales",
+    "salary": 62000
+  },
+  {
+    "id": 9,
+    "name": "Ivy Chen",
+    "email": "ivy.chen@example.com",
+    "age": 26,
+    "signup_date": "2023-09-14",
+    "department": "Engineering",
+    "salary": 78000
+  },
+  {
+    "id": 10,
+    "name": "Jack Taylor",
+    "email": "jack.taylor@example.com",
+    "age": 33,
+    "signup_date": "2023-10-08",
+    "department": "Finance",
+    "salary": 85000
+  }
+]

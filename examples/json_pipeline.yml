@@ -1,0 +1,38 @@
+name: "JSON Data Processing Pipeline"
+description: "A pipeline that processes JSON data using the new JSON extractor and loader plugins"
+
+# Extract data from JSON file
+extractor:
+  plugin: json_extractor
+  params:
+    path: "${INPUT_PATH}/sample_data.json"
+    orient: "records"
+    encoding: "utf-8"
+
+# Profile the data to find issues
+profilers:
+  - plugin: basic_profiler
+    params: {}
+
+# Clean the data
+transformers:
+  - plugin: basic_cleaner
+    params:
+      drop_nulls: true
+      drop_duplicates: true
+      convert_types:
+        age: numeric
+        signup_date: datetime
+
+# Save cleaned data as JSON
+loaders:
+  - plugin: json_loader
+    params:
+      path: "${OUTPUT_PATH}/cleaned_data.json"
+      orient: "records"
+      indent: 2
+      index: false
+
+# Global settings
+cache_intermediate: false
+max_memory_mb: 500
