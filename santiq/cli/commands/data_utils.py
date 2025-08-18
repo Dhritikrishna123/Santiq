@@ -41,7 +41,7 @@ class DataManager:
     def load_temp_data(self, path: Path) -> pd.DataFrame:
         """Load data from temporary file."""
         table = pq.read_table(path)
-        return table.to_pandas()
+        return table.to_pandas()  # type: ignore[no-any-return]
 
     def cleanup(self) -> None:
         """Clean up all temporary files."""

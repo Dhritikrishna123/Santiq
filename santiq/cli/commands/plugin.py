@@ -1,11 +1,11 @@
 """CLI commands for plugin management."""
 
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional
-import os
 
 import typer
 from rich.console import Console
@@ -139,7 +139,7 @@ def _show_external_plugins(plugin_type: Optional[str] = None) -> None:
     try:
         engine = ETLEngine()
         external_plugins = engine.list_external_plugins()
-        
+
         # Show config file location
         config_path = os.path.expanduser("~/.santiq/external_plugins.yml")
         console.print(f"[dim]Config file: {config_path}[/dim]\n")
@@ -226,17 +226,29 @@ def _show_available_plugins(plugin_type: Optional[str] = None) -> None:
         )
 
     console.print(table)
-    
+
     # Show helpful tips based on what's available
-    built_in_count = sum(1 for info in OFFICIAL_PLUGIN_REGISTRY.values() if info.get("built_in", False))
-    external_count = sum(1 for info in OFFICIAL_PLUGIN_REGISTRY.values() if not info.get("built_in", False))
-    
+    built_in_count = sum(
+        1 for info in OFFICIAL_PLUGIN_REGISTRY.values() if info.get("built_in", False)
+    )
+    external_count = sum(
+        1
+        for info in OFFICIAL_PLUGIN_REGISTRY.values()
+        if not info.get("built_in", False)
+    )
+
     if built_in_count > 0:
-        console.print(f"\n[green]✓ {built_in_count} built-in plugin(s) available immediately[/green]")
-    
+        console.print(
+            f"\n[green]✓ {built_in_count} built-in plugin(s) available immediately[/green]"
+        )
+
     if external_count > 0:
-        console.print(f"\n[blue]Tip:[/blue] Install external plugins with [cyan]santiq plugin install <name>[/cyan]")
-        console.print(f"[blue]Tip:[/blue] Or add custom plugins with [cyan]santiq plugin external add[/cyan]")
+        console.print(
+            f"\n[blue]Tip:[/blue] Install external plugins with [cyan]santiq plugin install <name>[/cyan]"
+        )
+        console.print(
+            f"[blue]Tip:[/blue] Or add custom plugins with [cyan]santiq plugin external add[/cyan]"
+        )
 
 
 @plugin_app.command("install")
@@ -260,14 +272,18 @@ def install_plugin(
     package_name = plugin_name
     if plugin_name in OFFICIAL_PLUGIN_REGISTRY:
         plugin_info = OFFICIAL_PLUGIN_REGISTRY[plugin_name]
-        
+
         # Check if it's a built-in plugin
         if plugin_info.get("built_in", False):
-            console.print(f"[green]✓ Plugin '{plugin_name}' is built-in and already available[/green]")
+            console.print(
+                f"[green]✓ Plugin '{plugin_name}' is built-in and already available[/green]"
+            )
             console.print(f"[blue]Description:[/blue] {plugin_info['description']}")
-            console.print(f"[blue]No installation needed - plugin is ready to use[/blue]")
+            console.print(
+                f"[blue]No installation needed - plugin is ready to use[/blue]"
+            )
             return
-        
+
         package_name = str(plugin_info["package"])
         console.print(
             f"[blue]Installing official plugin:[/blue] {plugin_name} ({package_name})"
@@ -737,10 +753,10 @@ def _add_external_plugin_config(
 
         # Add the configuration (this will auto-create the config file if needed)
         engine.add_external_plugin_config(plugin_name, plugin_config)
-        
+
         # Get the config file path for user feedback
         config_path = os.path.expanduser("~/.santiq/external_plugins.yml")
-        
+
         console.print(
             f"[green]✓ Added external plugin configuration:[/green] {plugin_name}"
         )
@@ -842,7 +858,9 @@ def _install_external_plugin(plugin_name: str, package_name: Optional[str]) -> N
                 # Verify installation
                 if engine.is_package_installed(package_name):
                     console.print(f"[green]✓ Package verification successful[/green]")
-                    console.print(f"[blue]Plugin stored in:[/blue] ~/.santiq/external_plugins.yml")
+                    console.print(
+                        f"[blue]Plugin stored in:[/blue] ~/.santiq/external_plugins.yml"
+                    )
                 else:
                     console.print(
                         f"[yellow]⚠ Package verification failed - plugin may not be available[/yellow]"

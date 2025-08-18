@@ -191,6 +191,8 @@ class Pipeline:
                         f"Plugin {profiler_config.plugin} does not have a callable 'profile' method"
                     )
 
+                if context.data is None:
+                    raise ValueError("Cannot profile None data")
                 result = profiler.profile(context.data)
                 results.append(result)
 
@@ -271,7 +273,7 @@ class Pipeline:
                     # Type assertion since we know this is a transformer plugin
                     from santiq.plugins.base.transformer import TransformerPlugin
 
-                    transformer_plugin = transformer  # type: ignore[assignment]
+                    transformer_plugin = transformer
                     suggestions = transformer_plugin.suggest_fixes(  # type: ignore[union-attr]
                         current_data, self._get_relevant_issues(context.profile_results)
                     )
@@ -351,6 +353,8 @@ class Pipeline:
                         f"Plugin {loader_config.plugin} does not have a callable 'load' method"
                     )
 
+                if context.data is None:
+                    raise ValueError("Cannot load None data")
                 result = loader.load(context.data)
                 results.append(
                     {

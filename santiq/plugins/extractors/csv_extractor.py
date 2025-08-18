@@ -92,7 +92,7 @@ class CSVExtractor(ExtractorPlugin):
 
         try:
             data = pd.read_csv(str(path), **pandas_params)
-            return data
+            return data  # type: ignore[no-any-return]
         except UnicodeDecodeError as e:
             # Provide helpful error message for encoding issues
             raise Exception(

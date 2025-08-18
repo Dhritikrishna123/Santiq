@@ -20,6 +20,7 @@ def version_callback(value: bool) -> None:
     """Show version information."""
     if value:
         from santiq import __version__
+
         console.print(f"santiq version {__version__}")
         raise typer.Exit()
 
