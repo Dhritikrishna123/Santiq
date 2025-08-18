@@ -19,12 +19,35 @@ console = Console(force_terminal=True)
 
 # Official plugin registry - this would be maintained by the santiq team
 OFFICIAL_PLUGIN_REGISTRY = {
+    # Built-in plugins (included with santiq core)
     "csv_extractor": {
-        "package": "santiq-plugin-csv-extractor",
-        "description": "Extract data from CSV files",
+        "package": "santiq",  # Built into santiq core
+        "description": "Extract data from CSV files with configurable options including separators, encoding, and data types",
         "category": "extractor",
         "official": True,
-    }
+        "built_in": True,
+    },
+    "csv_loader": {
+        "package": "santiq",  # Built into santiq core
+        "description": "Load data to CSV files with configurable options including separators, encoding, and formatting",
+        "category": "loader",
+        "official": True,
+        "built_in": True,
+    },
+    "basic_cleaner": {
+        "package": "santiq",  # Built into santiq core
+        "description": "Basic data cleaning: drop nulls, remove duplicates, type conversions",
+        "category": "transformer",
+        "official": True,
+        "built_in": True,
+    },
+    "basic_profiler": {
+        "package": "santiq",  # Built into santiq core
+        "description": "Performs basic profiling on data including null detection, duplicate identification, and type analysis",
+        "category": "profiler",
+        "official": True,
+        "built_in": True,
+    },
 }
 
 
@@ -186,9 +209,13 @@ def _show_available_plugins(plugin_type: Optional[str] = None) -> None:
             else:
                 continue  # Skip if category is neither string nor list
 
-        status = (
-            "[blue]Official[/blue]" if info["official"] else "[cyan]Community[/cyan]"
-        )
+        # Determine status based on built_in flag
+        if info.get("built_in", False):
+            status = "[green]Built-in[/green]"
+        elif info["official"]:
+            status = "[blue]Official[/blue]"
+        else:
+            status = "[cyan]Community[/cyan]"
 
         table.add_row(
             name,
@@ -199,9 +226,17 @@ def _show_available_plugins(plugin_type: Optional[str] = None) -> None:
         )
 
     console.print(table)
-    console.print(
-        f"\n[blue]Tip:[/blue] Install plugins with [cyan]santiq plugin install <name>[/cyan]"
-    )
+    
+    # Show helpful tips based on what's available
+    built_in_count = sum(1 for info in OFFICIAL_PLUGIN_REGISTRY.values() if info.get("built_in", False))
+    external_count = sum(1 for info in OFFICIAL_PLUGIN_REGISTRY.values() if not info.get("built_in", False))
+    
+    if built_in_count > 0:
+        console.print(f"\n[green]✓ {built_in_count} built-in plugin(s) available immediately[/green]")
+    
+    if external_count > 0:
+        console.print(f"\n[blue]Tip:[/blue] Install external plugins with [cyan]santiq plugin install <name>[/cyan]")
+        console.print(f"[blue]Tip:[/blue] Or add custom plugins with [cyan]santiq plugin external add[/cyan]")
 
 
 @plugin_app.command("install")
@@ -224,7 +259,16 @@ def install_plugin(
     # Check if it's a known plugin name from registry
     package_name = plugin_name
     if plugin_name in OFFICIAL_PLUGIN_REGISTRY:
-        package_name = str(OFFICIAL_PLUGIN_REGISTRY[plugin_name]["package"])
+        plugin_info = OFFICIAL_PLUGIN_REGISTRY[plugin_name]
+        
+        # Check if it's a built-in plugin
+        if plugin_info.get("built_in", False):
+            console.print(f"[green]✓ Plugin '{plugin_name}' is built-in and already available[/green]")
+            console.print(f"[blue]Description:[/blue] {plugin_info['description']}")
+            console.print(f"[blue]No installation needed - plugin is ready to use[/blue]")
+            return
+        
+        package_name = str(plugin_info["package"])
         console.print(
             f"[blue]Installing official plugin:[/blue] {plugin_name} ({package_name})"
         )
