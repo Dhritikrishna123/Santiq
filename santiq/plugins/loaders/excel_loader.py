@@ -51,7 +51,7 @@ class ExcelLoader(LoaderPlugin):
         }
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the Excel loader."""
         super().__init__()
         self.path: Optional[str] = None
@@ -67,18 +67,31 @@ class ExcelLoader(LoaderPlugin):
             raise ValueError("'path' is required in Excel loader configuration")
 
         self.path = config["path"]
-        
+
         # Extract pandas-specific parameters
         pandas_param_names = [
-            "sheet_name", "engine", "index", "header", "startrow", "startcol",
-            "freeze_panes", "na_rep", "float_format", "columns", "header_style",
-            "index_label", "merge_cells", "inf_rep", "encoding", "mode",
-            "if_sheet_exists", "storage_options"
+            "sheet_name",
+            "engine",
+            "index",
+            "header",
+            "startrow",
+            "startcol",
+            "freeze_panes",
+            "na_rep",
+            "float_format",
+            "columns",
+            "header_style",
+            "index_label",
+            "merge_cells",
+            "inf_rep",
+            "encoding",
+            "mode",
+            "if_sheet_exists",
+            "storage_options",
         ]
-        
+
         self.pandas_params = {
-            key: config[key] for key in pandas_param_names 
-            if key in config
+            key: config[key] for key in pandas_param_names if key in config
         }
 
         # Set sensible defaults
@@ -98,7 +111,7 @@ class ExcelLoader(LoaderPlugin):
         """
         try:
             # Ensure output directory exists
-            output_path = Path(self.path)
+            output_path = Path(self.path)  # type: ignore
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Write to Excel
@@ -133,7 +146,7 @@ class ExcelLoader(LoaderPlugin):
                 },
             )
 
-    def load_incremental(self, data: pd.DataFrame, **kwargs) -> LoadResult:
+    def load_incremental(self, data: pd.DataFrame, **kwargs: Any) -> LoadResult:
         """Load data incrementally to Excel file.
 
         Args:
@@ -146,18 +159,23 @@ class ExcelLoader(LoaderPlugin):
         try:
             # For incremental loading, we'll use ExcelWriter to append to existing file
             if_sheet_exists = kwargs.get("if_sheet_exists", "overlay")
-            
+
             # Update pandas params for incremental mode
             incremental_params = self.pandas_params.copy()
             # Remove if_sheet_exists as it's not a valid parameter for to_excel()
             incremental_params.pop("if_sheet_exists", None)
 
             # Ensure output directory exists
-            output_path = Path(self.path)
+            output_path = Path(self.path)  # type: ignore
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
             # Use ExcelWriter for incremental loading
-            with pd.ExcelWriter(self.path, engine=incremental_params.get("engine", "openpyxl"), mode="a", if_sheet_exists=if_sheet_exists) as writer:
+            with pd.ExcelWriter(
+                self.path,  # type: ignore
+                engine=incremental_params.get("engine", "openpyxl"),
+                mode="a",
+                if_sheet_exists=if_sheet_exists,
+            ) as writer:
                 data.to_excel(writer, **incremental_params)
 
             # Get file size
@@ -165,6 +183,7 @@ class ExcelLoader(LoaderPlugin):
 
             # Force cleanup of any remaining file handles
             import gc
+
             gc.collect()
 
             return LoadResult(

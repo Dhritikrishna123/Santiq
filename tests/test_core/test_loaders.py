@@ -8,8 +8,8 @@ import pytest
 
 from santiq.plugins.base.loader import LoadResult
 from santiq.plugins.loaders.csv_loader import CSVLoader
-from santiq.plugins.loaders.json_loader import JSONLoader
 from santiq.plugins.loaders.excel_loader import ExcelLoader
+from santiq.plugins.loaders.json_loader import JSONLoader
 
 
 class TestCSVLoader:
@@ -130,7 +130,7 @@ class TestJSONLoader:
         assert output_path.exists()
 
         # Verify the saved data
-        with open(output_path, 'r') as f:
+        with open(output_path, "r") as f:
             loaded_data = json.load(f)
         assert len(loaded_data) == len(sample_data)
         assert "id" in loaded_data[0]
@@ -141,12 +141,9 @@ class TestJSONLoader:
         output_path = temp_dir / "output.json"
 
         loader = JSONLoader()
-        loader.setup({
-            "path": str(output_path),
-            "orient": "records",
-            "indent": 2,
-            "index": False
-        })
+        loader.setup(
+            {"path": str(output_path), "orient": "records", "indent": 2, "index": False}
+        )
 
         result = loader.load(sample_data)
 
@@ -157,7 +154,9 @@ class TestJSONLoader:
         content = output_path.read_text()
         assert "  " in content  # Check for indentation
 
-    def test_loading_different_orientations(self, temp_dir: Path, sample_data: pd.DataFrame):
+    def test_loading_different_orientations(
+        self, temp_dir: Path, sample_data: pd.DataFrame
+    ):
         """Test JSON loading with different orientations."""
         # Test split orientation
         output_path = temp_dir / "output_split.json"
@@ -168,7 +167,7 @@ class TestJSONLoader:
         assert result.success is True
 
         # Verify split format
-        with open(output_path, 'r') as f:
+        with open(output_path, "r") as f:
             loaded_data = json.load(f)
         assert "data" in loaded_data
         assert "columns" in loaded_data
@@ -184,7 +183,7 @@ class TestJSONLoader:
         assert result.success is True
 
         # Verify index format
-        with open(output_path2, 'r') as f:
+        with open(output_path2, "r") as f:
             loaded_data = json.load(f)
         assert isinstance(loaded_data, dict)
         assert "0" in loaded_data
@@ -289,10 +288,11 @@ class TestExcelLoader:
         assert result.metadata["file_size_bytes"] > 0
         assert result.metadata["sheet_name"] == "Sheet1"
         assert result.metadata["engine"] == "openpyxl"
-        
+
         # Force cleanup of any open file handles
         import gc
         import time
+
         gc.collect()
         time.sleep(0.1)
 
@@ -301,23 +301,26 @@ class TestExcelLoader:
         output_path = temp_dir / "output.xlsx"
 
         loader = ExcelLoader()
-        loader.setup({
-            "path": str(output_path),
-            "sheet_name": "Data",
-            "engine": "openpyxl",
-            "index": True,
-            "header": True
-        })
+        loader.setup(
+            {
+                "path": str(output_path),
+                "sheet_name": "Data",
+                "engine": "openpyxl",
+                "index": True,
+                "header": True,
+            }
+        )
 
         result = loader.load(sample_data)
 
         assert result.success is True
         assert result.metadata["sheet_name"] == "Data"
         assert result.metadata["index_included"] is True
-        
+
         # Force cleanup of any open file handles
         import gc
         import time
+
         gc.collect()
         time.sleep(0.1)
 
@@ -340,24 +343,29 @@ class TestExcelLoader:
         assert result1.success is True
 
         # Second load (append to existing file)
-        result2 = loader.load_incremental(sample_data, mode="a", if_sheet_exists="overlay")
+        result2 = loader.load_incremental(
+            sample_data, mode="a", if_sheet_exists="overlay"
+        )
         assert result2.success is True
         assert result2.metadata["mode"] == "a"
         assert result2.metadata["if_sheet_exists"] == "overlay"
-        
+
         # Force cleanup of any open file handles
         import gc
         import time
+
         gc.collect()
         time.sleep(0.1)
 
     def test_loading_error_handling(self, temp_dir: Path):
         """Test Excel loader error handling."""
         # Create invalid data that might cause issues
-        invalid_data = pd.DataFrame({
-            "col1": [1, 2, 3],
-            "col2": [None, None, None]  # All nulls might cause issues
-        })
+        invalid_data = pd.DataFrame(
+            {
+                "col1": [1, 2, 3],
+                "col2": [None, None, None],  # All nulls might cause issues
+            }
+        )
 
         output_path = temp_dir / "output.xlsx"
 
@@ -369,9 +377,10 @@ class TestExcelLoader:
         # Should still succeed even with null data
         assert result.success is True
         assert result.rows_loaded == 3
-        
+
         # Force cleanup of any open file handles
         import gc
         import time
+
         gc.collect()
         time.sleep(0.1)

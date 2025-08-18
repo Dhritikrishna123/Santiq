@@ -51,7 +51,7 @@ class ExcelExtractor(ExtractorPlugin):
         }
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the Excel extractor."""
         super().__init__()
         self.path: Optional[str] = None
@@ -67,22 +67,34 @@ class ExcelExtractor(ExtractorPlugin):
             raise ValueError("'path' is required in Excel extractor configuration")
 
         self.path = config["path"]
-        
+
         # Validate file exists
         if not Path(self.path).exists():
             raise FileNotFoundError(f"Excel file not found: {self.path}")
 
         # Extract pandas-specific parameters
         pandas_param_names = [
-            "sheet_name", "header", "skiprows", "usecols", "engine", "dtype",
-            "na_values", "keep_default_na", "parse_dates", "date_parser",
-            "thousands", "decimal", "comment", "skipfooter", "convert_float",
-            "mangle_dupe_cols", "storage_options"
+            "sheet_name",
+            "header",
+            "skiprows",
+            "usecols",
+            "engine",
+            "dtype",
+            "na_values",
+            "keep_default_na",
+            "parse_dates",
+            "date_parser",
+            "thousands",
+            "decimal",
+            "comment",
+            "skipfooter",
+            "convert_float",
+            "mangle_dupe_cols",
+            "storage_options",
         ]
-        
+
         self.pandas_params = {
-            key: config[key] for key in pandas_param_names 
-            if key in config
+            key: config[key] for key in pandas_param_names if key in config
         }
 
         # Set sensible defaults
@@ -103,20 +115,20 @@ class ExcelExtractor(ExtractorPlugin):
             # Read Excel file
             if isinstance(self.pandas_params.get("sheet_name"), list):
                 # Multiple sheets - read all and concatenate
-                sheets = pd.read_excel(self.path, **self.pandas_params)
+                sheets: Any = pd.read_excel(self.path, **self.pandas_params)
                 if isinstance(sheets, dict):
                     # Multiple sheets returned as dict
                     dataframes = []
                     for sheet_name, df in sheets.items():
-                        df['_sheet_name'] = sheet_name
+                        df["_sheet_name"] = sheet_name
                         dataframes.append(df)
                     return pd.concat(dataframes, ignore_index=True)
                 else:
                     # Single sheet returned
-                    return sheets
+                    return sheets  # type: ignore
             else:
                 # Single sheet
-                return pd.read_excel(self.path, **self.pandas_params)
+                return pd.read_excel(self.path, **self.pandas_params)  # type: ignore
 
         except Exception as e:
             raise Exception(f"Excel extraction error: {str(e)}")
@@ -131,9 +143,9 @@ class ExcelExtractor(ExtractorPlugin):
             # Read just the first few rows to get schema info
             schema_params = self.pandas_params.copy()
             schema_params["nrows"] = 5  # Read only first 5 rows for schema detection
-            
+
             df_sample = pd.read_excel(self.path, **schema_params)
-            
+
             # Get sheet names if multiple sheets
             sheet_names = []
             xl_file = None
@@ -142,7 +154,7 @@ class ExcelExtractor(ExtractorPlugin):
                     sheet_names = self.pandas_params["sheet_name"]
                 elif self.pandas_params.get("sheet_name") == 0:
                     # Get all sheet names
-                    xl_file = pd.ExcelFile(self.path)
+                    xl_file = pd.ExcelFile(self.path)  # type: ignore
                     sheet_names = xl_file.sheet_names
                 else:
                     sheet_names = [str(self.pandas_params.get("sheet_name", 0))]
@@ -156,7 +168,7 @@ class ExcelExtractor(ExtractorPlugin):
                 "data_types": df_sample.dtypes.to_dict(),
                 "estimated_rows": len(df_sample),  # This is just a sample
                 "sheet_names": sheet_names,
-                "file_size_bytes": Path(self.path).stat().st_size,
+                "file_size_bytes": Path(self.path).stat().st_size,  # type: ignore
                 "engine": self.pandas_params.get("engine", "openpyxl"),
                 "header_row": self.pandas_params.get("header", 0),
                 "skip_rows": self.pandas_params.get("skiprows"),

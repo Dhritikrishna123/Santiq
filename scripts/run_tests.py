@@ -3,9 +3,9 @@ Comprehensive test runner script for santiq project.
 Provides various test execution options for different scenarios.
 """
 
-import sys
-import subprocess
 import argparse
+import subprocess
+import sys
 from pathlib import Path
 from typing import List, Optional
 
@@ -16,8 +16,8 @@ def run_command(cmd: List[str], description: str = "") -> int:
         print(f"\n{'='*60}")
         print(f"Running: {description}")
         print(f"Command: {' '.join(cmd)}")
-        print('='*60)
-    
+        print("=" * 60)
+
     try:
         result = subprocess.run(cmd, check=False)
         return result.returncode
@@ -29,104 +29,108 @@ def run_command(cmd: List[str], description: str = "") -> int:
 def run_unit_tests(coverage: bool = True, verbose: bool = False) -> int:
     """Run unit tests."""
     cmd = ["pytest", "tests/test_core/"]
-    
+
     if verbose:
         cmd.append("-v")
-    
+
     if coverage:
         cmd.extend(["--cov=santiq", "--cov-report=term-missing"])
-    
+
     return run_command(cmd, "Unit Tests")
 
 
 def run_integration_tests(verbose: bool = False) -> int:
     """Run integration tests."""
     cmd = ["pytest", "tests/", "-m", "integration"]
-    
+
     if verbose:
         cmd.append("-v")
-    
+
     return run_command(cmd, "Integration Tests")
 
 
 def run_cli_tests(verbose: bool = False) -> int:
     """Run CLI tests."""
     cmd = ["pytest", "tests/", "-m", "cli"]
-    
+
     if verbose:
         cmd.append("-v")
-    
+
     return run_command(cmd, "CLI Tests")
 
 
 def run_compatibility_tests(verbose: bool = False) -> int:
     """Run plugin compatibility tests."""
     cmd = ["pytest", "tests/", "-m", "compatibility"]
-    
+
     if verbose:
         cmd.append("-v")
-    
+
     return run_command(cmd, "Plugin Compatibility Tests")
 
 
 def run_github_workflow_tests(verbose: bool = False) -> int:
     """Run GitHub workflow specific tests."""
     cmd = ["pytest", "tests/test_core/github_workflow_test.py"]
-    
+
     if verbose:
         cmd.append("-v")
-    
+
     return run_command(cmd, "GitHub Workflow Tests")
 
 
 def run_external_plugin_tests(verbose: bool = False) -> int:
     """Run external plugin management tests."""
     cmd = ["pytest", "tests/", "-m", "external_plugin"]
-    
+
     if verbose:
         cmd.append("-v")
-    
+
     return run_command(cmd, "External Plugin Management Tests")
 
 
 def run_linting() -> int:
     """Run code linting checks."""
     exit_codes = []
-    
+
     # Black formatting check
-    exit_codes.append(run_command(
-        ["black", "--check", "--diff", "santiq", "tests"],
-        "Black Code Formatting Check"
-    ))
-    
+    exit_codes.append(
+        run_command(
+            ["black", "--check", "--diff", "santiq", "tests"],
+            "Black Code Formatting Check",
+        )
+    )
+
     # Import sorting check
-    exit_codes.append(run_command(
-        ["isort", "--check-only", "--profile", "black", "santiq", "tests"],
-        "Import Sorting Check"
-    ))
-    
+    exit_codes.append(
+        run_command(
+            ["isort", "--check-only", "--profile", "black", "santiq", "tests"],
+            "Import Sorting Check",
+        )
+    )
+
     # Type checking
-    exit_codes.append(run_command(
-        ["mypy", "santiq", "--ignore-missing-imports"],
-        "Type Checking"
-    ))
-    
+    exit_codes.append(
+        run_command(["mypy", "santiq", "--ignore-missing-imports"], "Type Checking")
+    )
+
     return max(exit_codes) if exit_codes else 0
 
 
 def run_security_checks() -> int:
     """Run security checks."""
     exit_codes = []
-    
+
     # Bandit security check
     try:
-        exit_codes.append(run_command(
-            ["bandit", "-r", "santiq", "-f", "json"],
-            "Security Vulnerability Check"
-        ))
+        exit_codes.append(
+            run_command(
+                ["bandit", "-r", "santiq", "-f", "json"], "Security Vulnerability Check"
+            )
+        )
     except:
         print("Warning: bandit not installed, skipping security check")
-    
+
     return max(exit_codes) if exit_codes else 0
 
 
@@ -167,16 +171,15 @@ for size in sizes:
 
 print("Benchmark data created successfully")
 """
-    
+
     # Run benchmark data creation
     exit_code = run_command(
-        ["python", "-c", create_benchmark_data_script],
-        "Creating Benchmark Data"
+        ["python", "-c", create_benchmark_data_script], "Creating Benchmark Data"
     )
-    
+
     if exit_code != 0:
         return exit_code
-    
+
     # Run actual performance test
     performance_test_script = """
 import time
@@ -240,10 +243,9 @@ for size in sizes:
 
 print("Performance benchmarks completed")
 """
-    
+
     return run_command(
-        ["python", "-c", performance_test_script],
-        "Performance Benchmarks"
+        ["python", "-c", performance_test_script], "Performance Benchmarks"
     )
 
 
@@ -255,56 +257,59 @@ def run_all_tests(verbose: bool = False, include_slow: bool = False) -> int:
         (lambda: run_integration_tests(verbose=verbose), "Integration Tests"),
         (lambda: run_cli_tests(verbose=verbose), "CLI Tests"),
         (lambda: run_compatibility_tests(verbose=verbose), "Compatibility Tests"),
-        (lambda: run_external_plugin_tests(verbose=verbose), "External Plugin Management Tests"),
+        (
+            lambda: run_external_plugin_tests(verbose=verbose),
+            "External Plugin Management Tests",
+        ),
         (lambda: run_github_workflow_tests(verbose=verbose), "GitHub Workflow Tests"),
         (run_security_checks, "Security Checks"),
     ]
-    
+
     if include_slow:
         test_functions.append((run_performance_tests, "Performance Tests"))
-    
+
     exit_codes = []
     failed_tests = []
-    
+
     print(f"\n{'='*80}")
     print("RUNNING COMPREHENSIVE TEST SUITE")
     print(f"{'='*80}")
-    
+
     for test_func, description in test_functions:
         print(f"\n🔄 Starting: {description}")
         exit_code = test_func()
         exit_codes.append(exit_code)
-        
+
         if exit_code == 0:
             print(f"✅ {description}: PASSED")
         else:
             print(f"❌ {description}: FAILED (exit code: {exit_code})")
             failed_tests.append(description)
-    
+
     # Summary
     print(f"\n{'='*80}")
     print("TEST SUITE SUMMARY")
     print(f"{'='*80}")
-    
+
     passed_count = sum(1 for code in exit_codes if code == 0)
     total_count = len(exit_codes)
-    
+
     print(f"Total Tests: {total_count}")
     print(f"Passed: {passed_count}")
     print(f"Failed: {total_count - passed_count}")
-    
+
     if failed_tests:
         print("\nFailed Tests:")
         for test in failed_tests:
             print(f"  ❌ {test}")
-    
+
     overall_exit_code = max(exit_codes) if exit_codes else 0
-    
+
     if overall_exit_code == 0:
         print("\n🎉 ALL TESTS PASSED!")
     else:
         print(f"\n⚠️  SOME TESTS FAILED (exit code: {overall_exit_code})")
-    
+
     return overall_exit_code
 
 
@@ -323,71 +328,98 @@ Examples:
   python scripts/run_tests.py --lint                # Run only linting checks
   python scripts/run_tests.py --performance         # Run performance benchmarks
   python scripts/run_tests.py --all --include-slow  # Run all tests including slow ones
-        """
+        """,
     )
-    
+
     # Test selection arguments
     parser.add_argument("--all", action="store_true", help="Run all tests")
     parser.add_argument("--unit", action="store_true", help="Run unit tests")
-    parser.add_argument("--integration", action="store_true", help="Run integration tests")
+    parser.add_argument(
+        "--integration", action="store_true", help="Run integration tests"
+    )
     parser.add_argument("--cli", action="store_true", help="Run CLI tests")
-    parser.add_argument("--compatibility", action="store_true", help="Run compatibility tests")
-    parser.add_argument("--external-plugin", action="store_true", help="Run external plugin management tests")
-    parser.add_argument("--github-workflow", action="store_true", help="Run GitHub workflow tests")
+    parser.add_argument(
+        "--compatibility", action="store_true", help="Run compatibility tests"
+    )
+    parser.add_argument(
+        "--external-plugin",
+        action="store_true",
+        help="Run external plugin management tests",
+    )
+    parser.add_argument(
+        "--github-workflow", action="store_true", help="Run GitHub workflow tests"
+    )
     parser.add_argument("--lint", action="store_true", help="Run linting checks")
     parser.add_argument("--security", action="store_true", help="Run security checks")
-    parser.add_argument("--performance", action="store_true", help="Run performance tests")
-    
+    parser.add_argument(
+        "--performance", action="store_true", help="Run performance tests"
+    )
+
     # Options
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
-    parser.add_argument("--include-slow", action="store_true", help="Include slow tests")
-    parser.add_argument("--no-coverage", action="store_true", help="Skip coverage reporting")
-    
+    parser.add_argument(
+        "--include-slow", action="store_true", help="Include slow tests"
+    )
+    parser.add_argument(
+        "--no-coverage", action="store_true", help="Skip coverage reporting"
+    )
+
     args = parser.parse_args()
-    
+
     # If no specific test type is selected, show help
-    if not any([args.all, args.unit, args.integration, args.cli, args.compatibility,
-                args.external_plugin, args.github_workflow, args.lint, args.security, 
-                args.performance]):
+    if not any(
+        [
+            args.all,
+            args.unit,
+            args.integration,
+            args.cli,
+            args.compatibility,
+            args.external_plugin,
+            args.github_workflow,
+            args.lint,
+            args.security,
+            args.performance,
+        ]
+    ):
         parser.print_help()
         return 1
-    
+
     exit_code = 0
-    
+
     if args.all:
         exit_code = run_all_tests(verbose=args.verbose, include_slow=args.include_slow)
     else:
         # Run individual test types
         if args.lint:
             exit_code = max(exit_code, run_linting())
-        
+
         if args.unit:
-            exit_code = max(exit_code, run_unit_tests(
-                coverage=not args.no_coverage, 
-                verbose=args.verbose
-            ))
-        
+            exit_code = max(
+                exit_code,
+                run_unit_tests(coverage=not args.no_coverage, verbose=args.verbose),
+            )
+
         if args.integration:
             exit_code = max(exit_code, run_integration_tests(verbose=args.verbose))
-        
+
         if args.cli:
             exit_code = max(exit_code, run_cli_tests(verbose=args.verbose))
-        
+
         if args.compatibility:
             exit_code = max(exit_code, run_compatibility_tests(verbose=args.verbose))
-        
+
         if args.external_plugin:
             exit_code = max(exit_code, run_external_plugin_tests(verbose=args.verbose))
-        
+
         if args.github_workflow:
             exit_code = max(exit_code, run_github_workflow_tests(verbose=args.verbose))
-        
+
         if args.security:
             exit_code = max(exit_code, run_security_checks())
-        
+
         if args.performance:
             exit_code = max(exit_code, run_performance_tests())
-    
+
     return exit_code
 
 

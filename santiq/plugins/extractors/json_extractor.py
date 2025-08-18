@@ -59,7 +59,14 @@ class JSONExtractor(ExtractorPlugin):
 
         # Validate orient parameter if provided
         orient = self.config.get("orient")
-        if orient and orient not in ["records", "split", "index", "columns", "values", "table"]:
+        if orient and orient not in [
+            "records",
+            "split",
+            "index",
+            "columns",
+            "values",
+            "table",
+        ]:
             raise ValueError(
                 f"Invalid 'orient' parameter: {orient}. "
                 "Must be one of: records, split, index, columns, values, table"
@@ -168,10 +175,10 @@ class JSONExtractor(ExtractorPlugin):
             # Read first few rows to get schema info
             sample_params = self.config.copy()
             sample_params["nrows"] = 5  # Read only 5 rows for schema detection
-            
+
             # Remove path from sample params
             sample_params.pop("path", None)
-            
+
             # Set defaults for schema detection
             sample_params.setdefault("encoding", "utf-8")
             sample_params.setdefault("orient", "records")
@@ -181,18 +188,22 @@ class JSONExtractor(ExtractorPlugin):
             # Try to get row count for small files
             estimated_rows = None
             json_format = sample_params.get("orient", "records")
-            
+
             try:
                 # For JSON lines format, count lines
                 if sample_params.get("lines", False):
-                    with open(str(path), "r", encoding=sample_params.get("encoding", "utf-8")) as f:
+                    with open(
+                        str(path), "r", encoding=sample_params.get("encoding", "utf-8")
+                    ) as f:
                         line_count = sum(1 for _ in f)
                     estimated_rows = line_count
                 else:
                     # For regular JSON, try to parse and count
-                    with open(str(path), "r", encoding=sample_params.get("encoding", "utf-8")) as f:
+                    with open(
+                        str(path), "r", encoding=sample_params.get("encoding", "utf-8")
+                    ) as f:
                         json_data = json.load(f)
-                    
+
                     if json_format == "records" and isinstance(json_data, list):
                         estimated_rows = len(json_data)
                     elif json_format == "split" and isinstance(json_data, dict):
@@ -201,8 +212,10 @@ class JSONExtractor(ExtractorPlugin):
                         estimated_rows = len(json_data)
                     elif json_format == "columns" and isinstance(json_data, dict):
                         # Count the length of the first column
-                        first_col = next(iter(json_data.values()), [])
-                        estimated_rows = len(first_col) if isinstance(first_col, list) else None
+                        first_col: Any = next(iter(json_data.values()), [])
+                        estimated_rows = (
+                            len(first_col) if isinstance(first_col, list) else None
+                        )
             except:
                 pass  # Don't fail if we can't count rows
 

@@ -58,7 +58,14 @@ class JSONLoader(LoaderPlugin):
 
         # Validate orient parameter if provided
         orient = self.config.get("orient")
-        if orient and orient not in ["records", "split", "index", "columns", "values", "table"]:
+        if orient and orient not in [
+            "records",
+            "split",
+            "index",
+            "columns",
+            "values",
+            "table",
+        ]:
             raise ValueError(
                 f"Invalid 'orient' parameter: {orient}. "
                 "Must be one of: records, split, index, columns, values, table"
@@ -102,7 +109,7 @@ class JSONLoader(LoaderPlugin):
         # Set sensible defaults for common parameters
         pandas_params.setdefault("orient", "records")  # Most common format
         pandas_params.setdefault("force_ascii", True)
-        
+
         # Only set index=False for orientations that support it
         if pandas_params.get("orient") in ["records", "split", "table", "values"]:
             pandas_params.setdefault("index", False)

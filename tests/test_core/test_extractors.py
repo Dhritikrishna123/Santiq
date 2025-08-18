@@ -8,8 +8,8 @@ import pytest
 
 from santiq.plugins.base.extractor import ExtractorPlugin
 from santiq.plugins.extractors.csv_extractor import CSVExtractor
-from santiq.plugins.extractors.json_extractor import JSONExtractor
 from santiq.plugins.extractors.excel_extractor import ExcelExtractor
+from santiq.plugins.extractors.json_extractor import JSONExtractor
 
 
 class TestCSVExtractor:
@@ -134,7 +134,7 @@ class TestJSONExtractor:
         json_data = {
             "data": [[1, 2, 3], ["Alice", "Bob", "Charlie"], [25, 30, 35]],
             "columns": ["id", "name", "age"],
-            "index": [0, 1, 2]
+            "index": [0, 1, 2],
         }
         json_file = temp_dir / "test.json"
         json_file.write_text(json.dumps(json_data))
@@ -155,10 +155,10 @@ class TestJSONExtractor:
         json_lines = [
             '{"id": 1, "name": "Alice", "age": 25}',
             '{"id": 2, "name": "Bob", "age": 30}',
-            '{"id": 3, "name": "Charlie", "age": 35}'
+            '{"id": 3, "name": "Charlie", "age": 35}',
         ]
         json_file = temp_dir / "test.jsonl"
-        json_file.write_text('\n'.join(json_lines))
+        json_file.write_text("\n".join(json_lines))
 
         extractor = JSONExtractor()
         extractor.setup({"path": str(json_file), "lines": True})
@@ -213,13 +213,11 @@ class TestExcelExtractor:
         """Test basic Excel extraction functionality."""
         # Create a simple Excel file using pandas
         import pandas as pd
-        
-        data = pd.DataFrame({
-            "id": [1, 2, 3],
-            "name": ["Alice", "Bob", "Charlie"],
-            "age": [25, 30, 35]
-        })
-        
+
+        data = pd.DataFrame(
+            {"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [25, 30, 35]}
+        )
+
         excel_file = temp_dir / "test.xlsx"
         data.to_excel(excel_file, index=False)
 
@@ -231,44 +229,46 @@ class TestExcelExtractor:
         assert len(result) == 3
         assert list(result.columns) == ["id", "name", "age"]
         assert result.loc[0, "name"] == "Alice"
-        
+
         # Force cleanup of any open file handles
         import gc
         import time
+
         gc.collect()
         time.sleep(0.1)
 
     def test_excel_extractor_with_options(self, temp_dir: Path):
         """Test Excel extractor with pandas options."""
         import pandas as pd
-        
+
         # Create Excel with header in row 2
-        data = pd.DataFrame({
-            "id": [1, 2, 3],
-            "name": ["Alice", "Bob", "Charlie"],
-            "age": [25, 30, 35]
-        })
-        
+        data = pd.DataFrame(
+            {"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [25, 30, 35]}
+        )
+
         excel_file = temp_dir / "test.xlsx"
-        
+
         # Write data directly to Excel
         data.to_excel(excel_file, index=False)
 
         extractor = ExcelExtractor()
-        extractor.setup({
-            "path": str(excel_file),
-            "header": 0,  # Header is in row 0 (default)
-            "skiprows": 0  # No rows to skip
-        })
+        extractor.setup(
+            {
+                "path": str(excel_file),
+                "header": 0,  # Header is in row 0 (default)
+                "skiprows": 0,  # No rows to skip
+            }
+        )
 
         result = extractor.extract()
 
         assert len(result) == 3
         assert list(result.columns) == ["id", "name", "age"]
-        
+
         # Force cleanup of any open file handles
         import gc
         import time
+
         gc.collect()
         time.sleep(0.1)
 
@@ -277,7 +277,7 @@ class TestExcelExtractor:
         excel_file = temp_dir / "nonexistent.xlsx"
 
         extractor = ExcelExtractor()
-        
+
         with pytest.raises(FileNotFoundError):
             extractor.setup({"path": str(excel_file)})
 
@@ -291,13 +291,11 @@ class TestExcelExtractor:
     def test_get_schema_info(self, temp_dir: Path):
         """Test getting schema information."""
         import pandas as pd
-        
-        data = pd.DataFrame({
-            "id": [1, 2, 3],
-            "name": ["Alice", "Bob", "Charlie"],
-            "age": [25, 30, 35]
-        })
-        
+
+        data = pd.DataFrame(
+            {"id": [1, 2, 3], "name": ["Alice", "Bob", "Charlie"], "age": [25, 30, 35]}
+        )
+
         excel_file = temp_dir / "test.xlsx"
         data.to_excel(excel_file, index=False)
 
@@ -316,9 +314,10 @@ class TestExcelExtractor:
         assert "id" in schema_info["columns"]
         assert "name" in schema_info["columns"]
         assert "age" in schema_info["columns"]
-        
+
         # Force cleanup of any open file handles
         import gc
         import time
+
         gc.collect()
         time.sleep(0.1)  # Small delay to ensure file handles are released
